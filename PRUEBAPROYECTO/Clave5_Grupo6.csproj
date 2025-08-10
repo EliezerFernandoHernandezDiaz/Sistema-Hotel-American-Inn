@@ -108,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CConexion.cs" />
+    <Compile Include="Data\UserRepository.cs" />
     <Compile Include="frmDatosCliente.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -149,6 +150,7 @@
     <Compile Include="Sesion.cs" />
     <Compile Include="Usuario.cs" />
     <Compile Include="UsuarioSesion.cs" />
+    <Compile Include="Utils\LegacyPassword.cs" />
     <Compile Include="Utils\PasswordHelper.cs" />
     <EmbeddedResource Include="frmDatosCliente.resx">
       <DependentUpon>frmDatosCliente.cs</DependentUpon>

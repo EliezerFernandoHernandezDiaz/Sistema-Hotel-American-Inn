@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration; 
 using System.Data;
+using System.Diagnostics.Eventing.Reader; // Con esta libreria se encripta la contraseña
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MySqlConnector; //Importando la libreria de mysql para conectar a la bd
-using System.Configuration; 
 using BCrypt.Net;
-using Org.BouncyCastle.Crypto;
 using Clave5_Grupo6;
-using System.Diagnostics.Eventing.Reader; // Con esta libreria se encripta la contraseña
+using MySqlConnector; //Importando la libreria de mysql para conectar a la bd
+using Org.BouncyCastle.Crypto;
+using PRUEBAPROYECTO.Data;
+using PRUEBAPROYECTO.Utils;
 
 namespace PRUEBAPROYECTO
 {
@@ -27,55 +29,54 @@ namespace PRUEBAPROYECTO
         public frmLogin()
         {
             InitializeComponent();
+            txtPassword.UseSystemPasswordChar = true; //para ocultar la contraseña mientras se escribe 
         }
 
         private void btnEntrarLog_Click(object sender, EventArgs e)
         {
             try
             {
-                using (var cn = NuevaConexion())
-                using (var cmd = new MySqlCommand(
-                    "SELECT id, username, password_hash, rol, activo FROM usuarios WHERE username=@u LIMIT 1", cn))
+                var repo = new UserRepository();
+                var rec = repo.GetByUsername(txtUsuario.Text.Trim());
+
+                if (rec == null) { MessageBox.Show("Usuario no existe"); return; }
+                var (id, username, bcrypt, legacy, rol, activo) = rec.Value;
+                if (!activo) { MessageBox.Show("El usuario no está activo."); return; }
+
+                var pass = txtPassword.Text;
+
+                // 1) Intenta BCrypt
+                if (!string.IsNullOrEmpty(bcrypt) && PasswordHelper.VerifyPassword(pass, bcrypt))
                 {
-                    cmd.Parameters.AddWithValue("@u", txtUsuario.Text.Trim());
-                    cn.Open();
-                    using (var rd = cmd.ExecuteReader())
-                    {
-                        if (rd.Read())
-                        {
-                            if (rd.GetInt32("activo") == 0)
-                            {
-                                MessageBox.Show("El usuario no está activo.");
-                                return;
-                            }
-                            var hash = rd.GetString("password_hash");
-                            if (BCrypt.Net.BCrypt.Verify(txtPassword.Text, hash))
-                            {
-                                Sesion.UsuarioActual = new UsuarioSesion
-                                {
-                                    Id = rd.GetInt32("id"),
-                                    Username = rd.GetString("username"),
-                                    Rol = rd.GetString("rol")
-                                };
-                                this.DialogResult = DialogResult.OK;
-                                this.Close();
-                            }
-                            else
-                            {
-                                MessageBox.Show("Contraseña incorrecta");
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show("Usuario no existe");
-                        }
-                    }
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                    return;
                 }
+
+                // 2) Intenta SHA-256 (migración) y si coincide, re-hashea a BCrypt
+                if (LegacyPassword.VerifySha256(pass, legacy))
+                {
+                    var newHash = PasswordHelper.HashPassword(pass);
+                    repo.SetBcrypt(id, newHash);
+
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                    return;
+                }
+
+                MessageBox.Show("Contraseña incorrecta");
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Login: " + ex.Message);
             }
         }
+
+        private void frmLogin_Load(object sender, EventArgs e)
+        {
+
+        }
+
+ 
     }
 }
