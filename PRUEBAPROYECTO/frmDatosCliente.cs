@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;     // <-- agregado para leer la cadena de conexión desde App.config
 using System.Data;
+using System.Drawing.Text;
 using System.Text.RegularExpressions; // <-- se agregó para validar el dui 
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,9 +13,29 @@ namespace Clave5_Grupo6
                                                           * a presentar en pantalla y fue creado para ingresar datos del cliente, mostrar datos ya existentes en la bd
                                                           * buscarlos o eliminarlos*/
     {
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, string lParam);
+
+        private const int EM_SETCUEBANNER = 0x1501;
+
+        private void SetCueBanner(TextBox tb, string cue, bool showWhenFocused = false)
+        {
+            // wParam = 1 -> también muestra el placeholder cuando el textbox tiene el foco
+            var wParam = showWhenFocused ? new IntPtr(1) : IntPtr.Zero;
+            // Asegura que el handle exista
+            var _ = tb.Handle;
+            SendMessage(tb.Handle, EM_SETCUEBANNER, wParam, cue);
+        }
+
         public frmCliente()
         {
             InitializeComponent();
+        }
+
+        private void frmDatosCliente_Load(object sender, EventArgs e)
+        {
+            txtBuscar.Multiline = false;
+            SetCueBanner(txtBuscar, "Escriba y presione enter", true);
         }
         private int? _selectedId = null;
         private string _originalDui = null;
@@ -183,52 +204,72 @@ namespace Clave5_Grupo6
             frmHabitAciones frm = new frmHabitAciones();
             frm.Show();
         }
-
-        private void btnBuscar_Click(object sender, EventArgs e)
+        //Método con parametros para buscar a un huesped 
+        private async Task BuscarHuespedAsync(string termino, string criterio)
         {
-
-            // Verifica si se ingresó un Dui válido
-            if (string.IsNullOrWhiteSpace(txtBuscar.Text))
+            var dt = new DataTable();
+            termino = (termino ?? "").Trim();
+            using (var cn = NuevaConexion())
+            using (var cmd = new MySqlCommand())
             {
-                MessageBox.Show("Por favor, ingresa un Dui válido para buscar la reserva.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+                cmd.Connection = cn;
+                string sql;
 
-            // Realiza la búsqueda y muestra los resultados en el DataGridView
-            BuscarReservaPorDui(txtBuscar.Text);
-        }
-
-        private void BuscarReservaPorDui(string duiCliente)
-        {
-            // Se establece la conexión (sin cadenas hardcodeadas)
-            try
-            {
-                using (var conexionDB = NuevaConexion())
+                if (string.IsNullOrEmpty(termino))
                 {
-                    conexionDB.Open();
-
-                    // Crea el comando SQL para la búsqueda por DuiCliente
-                    string sql = "SELECT * FROM tabla_reserva WHERE DuiCliente = @DUICliente";
-
-                    using (var cmd = new MySqlCommand(sql, conexionDB))
+                    sql = "SELECT id, DuiCliente, Nombresdelcliente, Apellidosdelcliente " +
+                  "FROM tabla_cliente ORDER BY id DESC";
+                }
+                else
+                {
+                    switch (criterio)
                     {
-                        cmd.Parameters.AddWithValue("@DUICliente", duiCliente);
+                        case "DUI":
+                            sql = @"SELECT id, DuiCliente, Nombresdelcliente, Apellidosdelcliente
+                            FROM tabla_cliente
+                            WHERE REPLACE(DuiCliente,'-','') LIKE CONCAT(REPLACE(@q,'-',''), '%')";
+                            cmd.Parameters.AddWithValue("@q", termino);
+                            break;
 
-                        // Ejecuta el comando y carga los resultados en el DataGridView
-                        DataTable dataTable = new DataTable();
-                        using (var resultado = cmd.ExecuteReader())
-                        {
-                            dataTable.Load(resultado);
-                        }
-                        dgvMostrarTablaCliente.DataSource = dataTable;
+                        case "Nombre":
+                            sql = @"SELECT id, DuiCliente, Nombresdelcliente, Apellidosdelcliente
+                            FROM tabla_cliente
+                            WHERE Nombresdelcliente LIKE CONCAT(@q, '%')";
+                            cmd.Parameters.AddWithValue("@q", termino);
+                            break;
+
+                        case "Apellidos":
+                            sql = @"SELECT id, DuiCliente, Nombresdelcliente, Apellidosdelcliente
+                            FROM tabla_cliente
+                            WHERE Apellidosdelcliente LIKE CONCAT(@q, '%')";
+                            cmd.Parameters.AddWithValue("@q", termino);
+                            break;
+
+                        default:
+                            sql = @"SELECT id, DuiCliente, Nombresdelcliente, Apellidosdelcliente
+                            FROM tabla_cliente
+                            WHERE REPLACE(DuiCliente,'-','') LIKE CONCAT(REPLACE(@q,'-',''), '%')
+                               OR Nombresdelcliente LIKE CONCAT(@q, '%')
+                               OR Apellidosdelcliente LIKE CONCAT(@q, '%')";
+                            cmd.Parameters.AddWithValue("@q", termino);
+                            break;
                     }
                 }
+                cmd.CommandText = sql;
+                await cn.OpenAsync();
+                using (var r = await cmd.ExecuteReaderAsync())
+                    dt.Load(r);
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error al buscar reserva: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            dgvMostrarTablaCliente.DataSource = dt;
         }
+
+        private async void btnBuscar_Click(object sender, EventArgs e)
+        {
+            var criterio = (cboBuscarPor.SelectedItem as string) ?? "Todos";
+            await BuscarHuespedAsync(txtBuscar.Text, criterio);
+        
+        }
+         
 
         /*Evento click del boton eliminar, este boton elimina un registro de la tabla cliente
          * siempre y cuando se seleccione una fila*/
@@ -285,7 +326,8 @@ namespace Clave5_Grupo6
         //Se limpian los controles de este formulario 
         private void txtLimpiarCampos_Click(object sender, EventArgs e)
         {
-            txtBuscar.Text = "";
+            // limpiar combobox
+            cboBuscarPor.SelectedIndex = -1;
             maskedDui.Text = "";
             txtIngresarApellidosHuesped.Text = "";
             txtNombreHuesped.Text = "";
@@ -411,6 +453,80 @@ namespace Clave5_Grupo6
             dgvMostrarTablaCliente.MultiSelect = false;
 
             dgvMostrarTablaCliente.SelectionChanged += dgvMostrarTablaCliente_SelectionChanged;
+
+            txtBuscar.KeyDown += txtBuscar_KeyDown;
+            cboBuscarPor.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboBuscarPor.Items.Clear();
+            cboBuscarPor.Items.AddRange(new[] { "Todos", "DUI", "Nombre", "Apellidos" });
+            cboBuscarPor.SelectedIndexChanged += cboBuscarPor_SelectedIndexChanged;
+            cboBuscarPor.SelectedIndex = 0;
+            this.AcceptButton = btnBuscar;
+            txtBuscar.Multiline = false;
+
+            txtBuscar.KeyPress += txtBuscar_KeyPress; //para restringir cuando sea dui 
+            cboBuscarPor_SelectedIndexChanged(null, EventArgs.Empty); //inicializa el label
+          
+        }
+
+        //Restringir lo que se escribe cuando el criterio seleccionado es el dui 
+        private void txtBuscar_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Solo aplicamos restricción si el criterio es DUI
+            var criterio = cboBuscarPor.SelectedItem?.ToString() ?? "Todos";
+            if (criterio != "DUI") return;
+
+            // Permitir dígitos, teclas de control (Backspace, Delete, etc.) y el guion
+            if (char.IsDigit(e.KeyChar) || char.IsControl(e.KeyChar) || e.KeyChar == '-')
+                return;
+
+            // Bloquear cualquier otro carácter
+            e.Handled = true;
+        }
+
+        private string _criterioBusqueda = "Todos";
+
+        private async void txtBuscar_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                var criterio = cboBuscarPor.SelectedItem?.ToString() ?? "Todos";
+                await BuscarHuespedAsync(txtBuscar.Text, criterio);
+            }
+        }
+        private void txtBuscar_TextChanged(object sender, EventArgs e)
+        {
+        }
+               private void cboBuscarPor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _criterioBusqueda = cboBuscarPor.SelectedItem?.ToString() ?? "Todos";
+
+            switch (_criterioBusqueda)
+            {
+                case "DUI":
+                    lblBusqueda.Text = "Ingrese el DUI del huésped a buscar";
+                    txtBuscar.MaxLength = 10;
+                    SetCueBanner(txtBuscar, "########-#", true);
+                    
+                    break;
+
+                case "Nombre":
+                    lblBusqueda.Text = "Ingrese nombre del huésped a buscar";
+                    txtBuscar.MaxLength = 80;
+                    SetCueBanner(txtBuscar, "Ej.: Ana", true);
+                    break;
+
+                case "Apellidos":
+                    lblBusqueda.Text = "Ingrese apellidos del huesped a buscar";
+                    SetCueBanner(txtBuscar, "Ej. : Pérez", true);
+                    break;
+                default:
+                    lblBusqueda.Text = "Ingrese dui, nombre o apellidos";
+                    SetCueBanner(txtBuscar, "Escriba y presione enter", true);
+                    break;
+
+            }
+
         }
     }
 }

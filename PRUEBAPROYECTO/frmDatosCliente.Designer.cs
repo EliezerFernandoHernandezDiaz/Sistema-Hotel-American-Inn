@@ -42,12 +42,14 @@ namespace Clave5_Grupo6
             this.btnBuscar = new System.Windows.Forms.Button();
             this.btnModificar = new System.Windows.Forms.Button();
             this.btnEliminarDatos = new System.Windows.Forms.Button();
-            this.txtBuscar = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.maskedDui = new System.Windows.Forms.MaskedTextBox();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.cboBuscarPor = new System.Windows.Forms.ComboBox();
+            this.txtBuscar = new System.Windows.Forms.TextBox();
+            this.lblBusqueda = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMostrarTablaCliente)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
@@ -139,7 +141,7 @@ namespace Clave5_Grupo6
             // 
             // btnBuscar
             // 
-            this.btnBuscar.Location = new System.Drawing.Point(987, 39);
+            this.btnBuscar.Location = new System.Drawing.Point(1149, 12);
             this.btnBuscar.Name = "btnBuscar";
             this.btnBuscar.Size = new System.Drawing.Size(120, 28);
             this.btnBuscar.TabIndex = 13;
@@ -166,14 +168,6 @@ namespace Clave5_Grupo6
             this.btnEliminarDatos.Text = "Eliminar huesped\r\n";
             this.btnEliminarDatos.UseVisualStyleBackColor = true;
             this.btnEliminarDatos.Click += new System.EventHandler(this.btnEliminarDatos_Click);
-            // 
-            // txtBuscar
-            // 
-            this.txtBuscar.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtBuscar.Location = new System.Drawing.Point(746, 39);
-            this.txtBuscar.Name = "txtBuscar";
-            this.txtBuscar.Size = new System.Drawing.Size(200, 30);
-            this.txtBuscar.TabIndex = 16;
             // 
             // label1
             // 
@@ -202,11 +196,11 @@ namespace Clave5_Grupo6
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.label4.Location = new System.Drawing.Point(500, 39);
+            this.label4.Location = new System.Drawing.Point(584, 12);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(216, 40);
+            this.label4.Size = new System.Drawing.Size(263, 40);
             this.label4.TabIndex = 20;
-            this.label4.Text = "Buscar huesped por DUI\r\n\r\n";
+            this.label4.Text = "Seleccionar tipo de busqueda \r\n\r\n";
             // 
             // maskedDui
             // 
@@ -220,17 +214,52 @@ namespace Clave5_Grupo6
             // 
             this.errorProvider1.ContainerControl = this;
             // 
+            // cboBuscarPor
+            // 
+            this.cboBuscarPor.FormattingEnabled = true;
+            this.cboBuscarPor.Items.AddRange(new object[] {
+            "Todos ",
+            "Dui",
+            "Nombre ",
+            "Apellido"});
+            this.cboBuscarPor.Location = new System.Drawing.Point(926, 12);
+            this.cboBuscarPor.Name = "cboBuscarPor";
+            this.cboBuscarPor.Size = new System.Drawing.Size(179, 24);
+            this.cboBuscarPor.TabIndex = 22;
+            this.cboBuscarPor.SelectedIndexChanged += new System.EventHandler(this.cboBuscarPor_SelectedIndexChanged);
+            // 
+            // txtBuscar
+            // 
+            this.txtBuscar.Location = new System.Drawing.Point(1089, 56);
+            this.txtBuscar.Name = "txtBuscar";
+            this.txtBuscar.Size = new System.Drawing.Size(226, 22);
+            this.txtBuscar.TabIndex = 23;
+            this.txtBuscar.TextChanged += new System.EventHandler(this.txtBuscar_TextChanged);
+            this.txtBuscar.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBuscar_KeyPress);
+            // 
+            // lblBusqueda
+            // 
+            this.lblBusqueda.AutoSize = true;
+            this.lblBusqueda.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblBusqueda.Location = new System.Drawing.Point(630, 56);
+            this.lblBusqueda.Name = "lblBusqueda";
+            this.lblBusqueda.Size = new System.Drawing.Size(120, 22);
+            this.lblBusqueda.TabIndex = 24;
+            this.lblBusqueda.Text = "lblBusqueda";
+            // 
             // frmCliente
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.ClientSize = new System.Drawing.Size(1327, 700);
+            this.ClientSize = new System.Drawing.Size(1331, 731);
+            this.Controls.Add(this.lblBusqueda);
+            this.Controls.Add(this.txtBuscar);
+            this.Controls.Add(this.cboBuscarPor);
             this.Controls.Add(this.maskedDui);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.txtBuscar);
             this.Controls.Add(this.btnEliminarDatos);
             this.Controls.Add(this.btnModificar);
             this.Controls.Add(this.btnBuscar);
@@ -267,11 +296,13 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.Button btnBuscar;
         private System.Windows.Forms.Button btnModificar;
         private System.Windows.Forms.Button btnEliminarDatos;
-        private System.Windows.Forms.TextBox txtBuscar;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.MaskedTextBox maskedDui;
         private System.Windows.Forms.ErrorProvider errorProvider1;
+        private System.Windows.Forms.ComboBox cboBuscarPor;
+        private System.Windows.Forms.Label lblBusqueda;
+        private System.Windows.Forms.TextBox txtBuscar;
     }
 }
