@@ -3,10 +3,11 @@ using System.Configuration;     // <-- agregado para leer la cadena de conexión
 using System.Data;
 using System.Windows.Forms;
 using MySqlConnector;           //libreria necesaria para que funcione correctamente la conexion a la bd 
+using System.Text.RegularExpressions; // <-- se agregó para validar el dui 
 
 namespace Clave5_Grupo6
 {
-    public partial class frmCliente : Form               /*Este formulario se asignó como el primero 
+    public partial class frmCliente : Form               /*Este formulario se asignó como la segunda pantalla que se va  
                                                           * a presentar en pantalla y fue creado para ingresar datos del cliente, mostrar datos ya existentes en la bd
                                                           * buscarlos o eliminarlos*/
     {
@@ -26,22 +27,11 @@ namespace Clave5_Grupo6
         //Evento click btnCerrar 
         private void btnCerrarfrmDatosCliente_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show(this, "¿Quiere cerrar la aplicación?", "Cerrar aplicacion", MessageBoxButtons.YesNo,
+            if (MessageBox.Show(this, "¿Quiere salir de la aplicación?", "Cerrar aplicacion", MessageBoxButtons.YesNo,
            MessageBoxIcon.Question) == DialogResult.Yes) Application.Exit();
 
             //Se pregunta si se desea cerrar toda la aplicación o no. 
         }
-
-        //btn que se hizo para probar la conexion a la bd 
-        private void btnProbarConex_Click(object sender, EventArgs e)
-        {
-            CConexion objetConexionfrmDatosCliente = new CConexion();
-            objetConexionfrmDatosCliente.EstablecerConexion();                   /*llamada a la clase que se creo para establecer la conexion
-                                                                                  * con mysql*/
-        }
-
-        /*Evento click del btnMostrar, se creó este boton para que al presionarlo muestre en el dgv
-         * los datos de huespedes ya existentes en la bd*/
         private void btnMostrarDatosHuesped_Click(object sender, EventArgs e)
         {
             /*Se establece conexion 
@@ -73,42 +63,116 @@ namespace Clave5_Grupo6
                                                                      * esto mismo permite presentar los datos de la tabla cliente en el datagridview*/
         }
 
+        private bool ValidateAll()
+        {
+            bool ok = true;
+            errorProvider1.Clear();
+            //Dui completo 
+            if (!maskedDui.MaskFull)
+            {
+                errorProvider1.SetError(maskedDui, "Dui incompleto. Formato: 00000000-0");
+                ok = false;
+            }
+
+            //Nombre requerido 
+            string nombre = txtNombreHuesped.Text.Trim();
+            if (string.IsNullOrWhiteSpace(nombre))
+            {
+                errorProvider1.SetError(txtNombreHuesped, "El nombre es obligatorio.");
+                ok = false;
+            }
+            else
+            {
+                //Para vaidar que el nombre solo sea letras y espacios 
+                if (!Regex.IsMatch(nombre, @"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]+$"))
+                {
+                    errorProvider1.SetError(txtNombreHuesped, "El nombre solo puede contener letras y espacios");
+                    ok = false;
+                }
+            }
+            //Apellidos obligatorios 
+            //Nombre requerido 
+            string apellidos = txtIngresarApellidosHuesped.Text.Trim();
+            if (string.IsNullOrWhiteSpace(apellidos))
+            {
+                errorProvider1.SetError(txtIngresarApellidosHuesped, "Escribe un apellido.");
+                ok = false;
+            }
+            else
+            {
+                //Para vaidar que el apellido solo sea letras y espacios 
+                if (!Regex.IsMatch(apellidos, @"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]+$"))
+                {
+                    errorProvider1.SetError(txtIngresarApellidosHuesped, "El apellido solo puede contener letras y espacios");
+                    ok = false;
+                }
+            }
+            return ok;
+        }
+
         //Evento click del btnagregar, este boton agrega a los huespedes a la bd despues de rellaenar todos los campos 
+
+        private bool IsFormValid() //Se crea este metodo para desactivar el boton de agregar huesped si no se han completado todos los datos 
+        {
+            //Solo devuelve true/false, sin mostar errores
+            if (!maskedDui.MaskFull) return false;
+            if (string.IsNullOrWhiteSpace(txtNombreHuesped.Text)) return false;
+            if (string.IsNullOrWhiteSpace(txtIngresarApellidosHuesped.Text)) return false;
+
+            var letrasRegex = @"^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s'-]+$";
+            if (!Regex.IsMatch(txtNombreHuesped.Text.Trim(), letrasRegex)) return false;
+            if (!Regex.IsMatch(txtIngresarApellidosHuesped.Text.Trim(), letrasRegex)) return false;
+
+            return true;
+        }
         private void btnAgregarDatosHuesped_Click(object sender, EventArgs e)
         {
-            // Se quita la cadena de conexión hardcodeada y se usa la de App.config
-            /*Se crea la cadena conexion para conectarse a la base*/
             try
             {
+                if (!ValidateAll()) return;
+
+                var dui = maskedDui.Text.Trim();
+                var nombre = txtNombreHuesped.Text.Trim();
+                var apellidos = txtIngresarApellidosHuesped.Text.Trim();
+
                 using (var conexionDB = NuevaConexion())
                 {
                     conexionDB.Open();
 
-                    // Creamos un comando para la inserción con parámetros
-                    string sql = "INSERT INTO tabla_cliente (DuiCliente, Nombresdelcliente, Apellidosdelcliente) " +
-                                 "VALUES (@DUICliente, @NombreHuesped, @ApellidosHuesped)";
+                    string sql = @"INSERT INTO tabla_cliente 
+                           (DuiCliente, Nombresdelcliente, Apellidosdelcliente)
+                           VALUES (@DUICliente, @NombreHuesped, @ApellidosHuesped)";
 
                     using (var cmd = new MySqlCommand(sql, conexionDB))
                     {
-                        // Agregamos los parámetros
-                        cmd.Parameters.AddWithValue("@DUICliente", txtDuiHuesped.Text);
-                        cmd.Parameters.AddWithValue("@NombreHuesped", txtNombreHuesped.Text);
-                        cmd.Parameters.AddWithValue("@ApellidosHuesped", txtIngresarApellidosHuesped.Text);
+                        cmd.Parameters.AddWithValue("@DUICliente", dui);
+                        cmd.Parameters.AddWithValue("@NombreHuesped", nombre);
+                        cmd.Parameters.AddWithValue("@ApellidosHuesped", apellidos);
 
-                        //el siguiente comando se agrega para que registre los cambios que se hagan como los de agregar huespedes
-                        cmd.ExecuteNonQuery();
+                        int filas = cmd.ExecuteNonQuery();
+                        if (filas > 0)
+                        {
+                            MessageBox.Show("Huésped agregado con éxito.",
+                                "Mensaje de Confirmación", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     }
                 }
 
-                // Muestra todas las reservas (incluyendo las recién agregadas) en el DataGridView
+                // refresca el grid
                 btnMostrarDatosHuesped_Click(sender, e);
+            }
+            catch (MySqlException ex) when (ex.Number == 1062) // clave duplicada
+            {
+                MessageBox.Show("Ese DUI ya existe. Verifica antes de guardar.",
+                    "Duplicado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message); //Fin del try catch que envia un msj de error en caso de una excepcion 
+                MessageBox.Show("Error: Ocurrió un error mientras se guardaba el huésped: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
         }
+
 
         //Este botón es para ir al formulario de las habitaciones
         private void btnIrHabitaciones_Click(object sender, EventArgs e)
@@ -181,7 +245,7 @@ namespace Clave5_Grupo6
             }
             else
             {
-                MessageBox.Show("Por favor, selecciona una fila para eliminar.");
+                MessageBox.Show("Por favor, selecciona un cliente para eliminar.", "Eliminar Cliente", MessageBoxButtons.OK, MessageBoxIcon.Information); ;
             }
         }
 
@@ -207,11 +271,11 @@ namespace Clave5_Grupo6
                         cmd.ExecuteNonQuery();
                     }
                 }
-                MessageBox.Show("Huesped eliminado con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Huesped eliminado con éxito.", "Mensaje de Confirmación", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex) //Se utilizó un try que arroje un mensaje en caso de haber excepcion. 
             {
-                MessageBox.Show("Error al eliminar: " + ex.Message);
+                MessageBox.Show("Error al eliminar al cliente, vuelve a intentarlo.: " + ex.Message);
             }
         }
 
@@ -219,7 +283,7 @@ namespace Clave5_Grupo6
         private void txtLimpiarCampos_Click(object sender, EventArgs e)
         {
             txtBuscar.Text = "";
-            txtDuiHuesped.Text = "";
+            maskedDui.Text = "";
             txtIngresarApellidosHuesped.Text = "";
             txtNombreHuesped.Text = "";
         }
@@ -227,6 +291,21 @@ namespace Clave5_Grupo6
         private void btnModificar_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void Campos_TextChanged(object sender, EventArgs e)
+        {
+            btnAgregarDatosHuesped.Enabled = IsFormValid();
+        }
+        private void frmCliente_Load(object sender, EventArgs e)
+        {
+            errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink; //Se configura el estilo de parpardeo para que no parpadee el error provider
+            btnAgregarDatosHuesped.Enabled = false; //Se inicia desactivado
+
+            //Se asignan eventos para que al escribir se valide
+            maskedDui.TextChanged += Campos_TextChanged;
+            txtNombreHuesped.TextChanged += Campos_TextChanged;
+            txtIngresarApellidosHuesped.TextChanged += Campos_TextChanged;
         }
     }
 }

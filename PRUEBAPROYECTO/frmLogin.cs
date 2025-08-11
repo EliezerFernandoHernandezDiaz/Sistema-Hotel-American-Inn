@@ -39,7 +39,7 @@ namespace PRUEBAPROYECTO
                 var repo = new UserRepository();
                 var rec = repo.GetByUsername(txtUsuario.Text.Trim());
 
-                if (rec == null) { MessageBox.Show("Usuario no existe"); return; }
+                if (rec == null) { MessageBox.Show("Usuario no existe", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 var (id, username, bcrypt, legacy, rol, activo) = rec.Value;
                 if (!activo) { MessageBox.Show("El usuario no está activo."); return; }
 
@@ -63,8 +63,8 @@ namespace PRUEBAPROYECTO
                     this.Close();
                     return;
                 }
-
-                MessageBox.Show("Contraseña incorrecta");
+                //Agregando un messsage box interactivo para mostrar el error
+                MessageBox.Show("Contraseña Incorrecta", "Errror de Autenticación", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {

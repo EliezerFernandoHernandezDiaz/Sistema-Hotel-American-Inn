@@ -29,87 +29,67 @@ namespace Clave5_Grupo6
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.txtNombreHuesped = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.txtIngresarApellidosHuesped = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.txtDuiHuesped = new System.Windows.Forms.TextBox();
             this.dgvMostrarTablaCliente = new System.Windows.Forms.DataGridView();
             this.btnAgregarDatosHuesped = new System.Windows.Forms.Button();
             this.btnMostrarDatosHuesped = new System.Windows.Forms.Button();
             this.txtLimpiarCampos = new System.Windows.Forms.Button();
             this.btnCerrarfrmDatosCliente = new System.Windows.Forms.Button();
-            this.btnProbarConex = new System.Windows.Forms.Button();
             this.btnIrHabitaciones = new System.Windows.Forms.Button();
             this.btnBuscar = new System.Windows.Forms.Button();
             this.btnModificar = new System.Windows.Forms.Button();
             this.btnEliminarDatos = new System.Windows.Forms.Button();
             this.txtBuscar = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.maskedDui = new System.Windows.Forms.MaskedTextBox();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dgvMostrarTablaCliente)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // txtNombreHuesped
             // 
-            this.txtNombreHuesped.Location = new System.Drawing.Point(253, 162);
+            this.txtNombreHuesped.Location = new System.Drawing.Point(396, 164);
             this.txtNombreHuesped.Name = "txtNombreHuesped";
-            this.txtNombreHuesped.Size = new System.Drawing.Size(171, 22);
+            this.txtNombreHuesped.Size = new System.Drawing.Size(232, 22);
             this.txtNombreHuesped.TabIndex = 0;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 162);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(204, 17);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Ingrese el nombre del huesped";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 262);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(219, 17);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Ingrese los apellidos del huesped";
             // 
             // txtIngresarApellidosHuesped
             // 
-            this.txtIngresarApellidosHuesped.Location = new System.Drawing.Point(253, 262);
+            this.txtIngresarApellidosHuesped.Location = new System.Drawing.Point(357, 262);
             this.txtIngresarApellidosHuesped.Name = "txtIngresarApellidosHuesped";
-            this.txtIngresarApellidosHuesped.Size = new System.Drawing.Size(171, 22);
+            this.txtIngresarApellidosHuesped.Size = new System.Drawing.Size(232, 22);
             this.txtIngresarApellidosHuesped.TabIndex = 3;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(15, 74);
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.label3.Location = new System.Drawing.Point(12, 74);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(175, 17);
+            this.label3.Size = new System.Drawing.Size(230, 20);
             this.label3.TabIndex = 4;
             this.label3.Text = "Ingrese el dui del huesped";
-            // 
-            // txtDuiHuesped
-            // 
-            this.txtDuiHuesped.Location = new System.Drawing.Point(253, 74);
-            this.txtDuiHuesped.Name = "txtDuiHuesped";
-            this.txtDuiHuesped.Size = new System.Drawing.Size(171, 22);
-            this.txtDuiHuesped.TabIndex = 5;
             // 
             // dgvMostrarTablaCliente
             // 
             this.dgvMostrarTablaCliente.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvMostrarTablaCliente.Location = new System.Drawing.Point(579, 131);
+            this.dgvMostrarTablaCliente.Location = new System.Drawing.Point(634, 106);
             this.dgvMostrarTablaCliente.Name = "dgvMostrarTablaCliente";
             this.dgvMostrarTablaCliente.RowHeadersWidth = 51;
             this.dgvMostrarTablaCliente.RowTemplate.Height = 24;
-            this.dgvMostrarTablaCliente.Size = new System.Drawing.Size(472, 354);
+            this.dgvMostrarTablaCliente.Size = new System.Drawing.Size(681, 397);
             this.dgvMostrarTablaCliente.TabIndex = 6;
             // 
             // btnAgregarDatosHuesped
             // 
-            this.btnAgregarDatosHuesped.Location = new System.Drawing.Point(158, 564);
+            this.btnAgregarDatosHuesped.Location = new System.Drawing.Point(18, 389);
             this.btnAgregarDatosHuesped.Name = "btnAgregarDatosHuesped";
             this.btnAgregarDatosHuesped.Size = new System.Drawing.Size(127, 77);
             this.btnAgregarDatosHuesped.TabIndex = 7;
@@ -119,57 +99,47 @@ namespace Clave5_Grupo6
             // 
             // btnMostrarDatosHuesped
             // 
-            this.btnMostrarDatosHuesped.Location = new System.Drawing.Point(187, 349);
+            this.btnMostrarDatosHuesped.Location = new System.Drawing.Point(175, 389);
             this.btnMostrarDatosHuesped.Name = "btnMostrarDatosHuesped";
-            this.btnMostrarDatosHuesped.Size = new System.Drawing.Size(122, 51);
+            this.btnMostrarDatosHuesped.Size = new System.Drawing.Size(122, 77);
             this.btnMostrarDatosHuesped.TabIndex = 8;
-            this.btnMostrarDatosHuesped.Text = "Mostrar datos del huesped";
+            this.btnMostrarDatosHuesped.Text = "Mostrar datos de huespedes";
             this.btnMostrarDatosHuesped.UseVisualStyleBackColor = true;
             this.btnMostrarDatosHuesped.Click += new System.EventHandler(this.btnMostrarDatosHuesped_Click);
             // 
             // txtLimpiarCampos
             // 
-            this.txtLimpiarCampos.Location = new System.Drawing.Point(337, 349);
+            this.txtLimpiarCampos.Location = new System.Drawing.Point(317, 389);
             this.txtLimpiarCampos.Name = "txtLimpiarCampos";
-            this.txtLimpiarCampos.Size = new System.Drawing.Size(120, 51);
+            this.txtLimpiarCampos.Size = new System.Drawing.Size(120, 77);
             this.txtLimpiarCampos.TabIndex = 9;
-            this.txtLimpiarCampos.Text = "Limpiar todo";
+            this.txtLimpiarCampos.Text = "Limpiar datos ingresasos";
             this.txtLimpiarCampos.UseVisualStyleBackColor = true;
             this.txtLimpiarCampos.Click += new System.EventHandler(this.txtLimpiarCampos_Click);
             // 
             // btnCerrarfrmDatosCliente
             // 
-            this.btnCerrarfrmDatosCliente.Location = new System.Drawing.Point(18, 424);
+            this.btnCerrarfrmDatosCliente.Location = new System.Drawing.Point(320, 495);
             this.btnCerrarfrmDatosCliente.Name = "btnCerrarfrmDatosCliente";
-            this.btnCerrarfrmDatosCliente.Size = new System.Drawing.Size(117, 61);
+            this.btnCerrarfrmDatosCliente.Size = new System.Drawing.Size(117, 77);
             this.btnCerrarfrmDatosCliente.TabIndex = 10;
-            this.btnCerrarfrmDatosCliente.Text = "Cerrar";
+            this.btnCerrarfrmDatosCliente.Text = "Cerrar aplicación";
             this.btnCerrarfrmDatosCliente.UseVisualStyleBackColor = true;
             this.btnCerrarfrmDatosCliente.Click += new System.EventHandler(this.btnCerrarfrmDatosCliente_Click);
             // 
-            // btnProbarConex
-            // 
-            this.btnProbarConex.Location = new System.Drawing.Point(18, 349);
-            this.btnProbarConex.Name = "btnProbarConex";
-            this.btnProbarConex.Size = new System.Drawing.Size(127, 51);
-            this.btnProbarConex.TabIndex = 11;
-            this.btnProbarConex.Text = "Probar la conexion ";
-            this.btnProbarConex.UseVisualStyleBackColor = true;
-            this.btnProbarConex.Click += new System.EventHandler(this.btnProbarConex_Click);
-            // 
             // btnIrHabitaciones
             // 
-            this.btnIrHabitaciones.Location = new System.Drawing.Point(716, 570);
+            this.btnIrHabitaciones.Location = new System.Drawing.Point(1032, 548);
             this.btnIrHabitaciones.Name = "btnIrHabitaciones";
             this.btnIrHabitaciones.Size = new System.Drawing.Size(138, 71);
             this.btnIrHabitaciones.TabIndex = 12;
-            this.btnIrHabitaciones.Text = "Ir al formulario habitaciones";
+            this.btnIrHabitaciones.Text = "Agregar datos de la habitación\r\n=>";
             this.btnIrHabitaciones.UseVisualStyleBackColor = true;
             this.btnIrHabitaciones.Click += new System.EventHandler(this.btnIrHabitaciones_Click);
             // 
             // btnBuscar
             // 
-            this.btnBuscar.Location = new System.Drawing.Point(786, 42);
+            this.btnBuscar.Location = new System.Drawing.Point(987, 39);
             this.btnBuscar.Name = "btnBuscar";
             this.btnBuscar.Size = new System.Drawing.Size(120, 28);
             this.btnBuscar.TabIndex = 13;
@@ -179,56 +149,105 @@ namespace Clave5_Grupo6
             // 
             // btnModificar
             // 
-            this.btnModificar.Location = new System.Drawing.Point(337, 564);
+            this.btnModificar.Location = new System.Drawing.Point(25, 495);
             this.btnModificar.Name = "btnModificar";
             this.btnModificar.Size = new System.Drawing.Size(120, 77);
             this.btnModificar.TabIndex = 14;
-            this.btnModificar.Text = "Modificar datos";
+            this.btnModificar.Text = "Modificar datos del huesped\r\n";
             this.btnModificar.UseVisualStyleBackColor = true;
             this.btnModificar.Click += new System.EventHandler(this.btnModificar_Click);
             // 
             // btnEliminarDatos
             // 
-            this.btnEliminarDatos.Location = new System.Drawing.Point(530, 570);
+            this.btnEliminarDatos.Location = new System.Drawing.Point(170, 495);
             this.btnEliminarDatos.Name = "btnEliminarDatos";
-            this.btnEliminarDatos.Size = new System.Drawing.Size(127, 71);
+            this.btnEliminarDatos.Size = new System.Drawing.Size(127, 77);
             this.btnEliminarDatos.TabIndex = 15;
-            this.btnEliminarDatos.Text = "Eliminar datos";
+            this.btnEliminarDatos.Text = "Eliminar datos del huésped";
             this.btnEliminarDatos.UseVisualStyleBackColor = true;
             this.btnEliminarDatos.Click += new System.EventHandler(this.btnEliminarDatos_Click);
             // 
             // txtBuscar
             // 
-            this.txtBuscar.Location = new System.Drawing.Point(557, 42);
+            this.txtBuscar.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtBuscar.Location = new System.Drawing.Point(746, 39);
             this.txtBuscar.Name = "txtBuscar";
-            this.txtBuscar.Size = new System.Drawing.Size(161, 22);
+            this.txtBuscar.Size = new System.Drawing.Size(200, 30);
             this.txtBuscar.TabIndex = 16;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.label1.Location = new System.Drawing.Point(7, 164);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(313, 40);
+            this.label1.TabIndex = 18;
+            this.label1.Text = "Ingrese los nombres de los huesped\r\n\r\n";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.label2.Location = new System.Drawing.Point(7, 262);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(290, 60);
+            this.label2.TabIndex = 19;
+            this.label2.Text = "Ingrese los apellidos del huesped\r\n\r\n\r\n";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
+            this.label4.Location = new System.Drawing.Point(500, 39);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(216, 40);
+            this.label4.TabIndex = 20;
+            this.label4.Text = "Buscar huesped por DUI\r\n\r\n";
+            // 
+            // maskedDui
+            // 
+            this.maskedDui.Location = new System.Drawing.Point(396, 74);
+            this.maskedDui.Mask = "00000000-0";
+            this.maskedDui.Name = "maskedDui";
+            this.maskedDui.Size = new System.Drawing.Size(179, 22);
+            this.maskedDui.TabIndex = 21;
+            // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
             // 
             // frmCliente
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1165, 700);
+            this.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.ClientSize = new System.Drawing.Size(1327, 700);
+            this.Controls.Add(this.maskedDui);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.txtBuscar);
             this.Controls.Add(this.btnEliminarDatos);
             this.Controls.Add(this.btnModificar);
             this.Controls.Add(this.btnBuscar);
             this.Controls.Add(this.btnIrHabitaciones);
-            this.Controls.Add(this.btnProbarConex);
             this.Controls.Add(this.btnCerrarfrmDatosCliente);
             this.Controls.Add(this.txtLimpiarCampos);
             this.Controls.Add(this.btnMostrarDatosHuesped);
             this.Controls.Add(this.btnAgregarDatosHuesped);
             this.Controls.Add(this.dgvMostrarTablaCliente);
-            this.Controls.Add(this.txtDuiHuesped);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtIngresarApellidosHuesped);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.txtNombreHuesped);
             this.Name = "frmCliente";
             this.Text = "Datos del cliente";
+            this.Load += new System.EventHandler(this.frmCliente_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvMostrarTablaCliente)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -237,21 +256,22 @@ namespace Clave5_Grupo6
         #endregion
 
         private System.Windows.Forms.TextBox txtNombreHuesped;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtIngresarApellidosHuesped;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox txtDuiHuesped;
         private System.Windows.Forms.DataGridView dgvMostrarTablaCliente;
         private System.Windows.Forms.Button btnAgregarDatosHuesped;
         private System.Windows.Forms.Button btnMostrarDatosHuesped;
         private System.Windows.Forms.Button txtLimpiarCampos;
         private System.Windows.Forms.Button btnCerrarfrmDatosCliente;
-        private System.Windows.Forms.Button btnProbarConex;
         private System.Windows.Forms.Button btnIrHabitaciones;
         private System.Windows.Forms.Button btnBuscar;
         private System.Windows.Forms.Button btnModificar;
         private System.Windows.Forms.Button btnEliminarDatos;
         private System.Windows.Forms.TextBox txtBuscar;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.MaskedTextBox maskedDui;
+        private System.Windows.Forms.ErrorProvider errorProvider1;
     }
 }
