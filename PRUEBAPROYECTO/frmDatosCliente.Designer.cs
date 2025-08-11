@@ -113,7 +113,7 @@ namespace Clave5_Grupo6
             this.txtLimpiarCampos.Name = "txtLimpiarCampos";
             this.txtLimpiarCampos.Size = new System.Drawing.Size(120, 77);
             this.txtLimpiarCampos.TabIndex = 9;
-            this.txtLimpiarCampos.Text = "Limpiar datos ingresasos";
+            this.txtLimpiarCampos.Text = "Limpiar datos ingresados";
             this.txtLimpiarCampos.UseVisualStyleBackColor = true;
             this.txtLimpiarCampos.Click += new System.EventHandler(this.txtLimpiarCampos_Click);
             // 
@@ -163,7 +163,7 @@ namespace Clave5_Grupo6
             this.btnEliminarDatos.Name = "btnEliminarDatos";
             this.btnEliminarDatos.Size = new System.Drawing.Size(127, 77);
             this.btnEliminarDatos.TabIndex = 15;
-            this.btnEliminarDatos.Text = "Eliminar datos del huésped";
+            this.btnEliminarDatos.Text = "Eliminar huesped\r\n";
             this.btnEliminarDatos.UseVisualStyleBackColor = true;
             this.btnEliminarDatos.Click += new System.EventHandler(this.btnEliminarDatos_Click);
             // 

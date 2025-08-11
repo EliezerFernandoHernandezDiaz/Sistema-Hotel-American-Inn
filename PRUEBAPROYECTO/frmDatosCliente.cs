@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Configuration;     // <-- agregado para leer la cadena de conexión desde App.config
 using System.Data;
+using System.Text.RegularExpressions; // <-- se agregó para validar el dui 
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MySqlConnector;           //libreria necesaria para que funcione correctamente la conexion a la bd 
-using System.Text.RegularExpressions; // <-- se agregó para validar el dui 
 
 namespace Clave5_Grupo6
 {
@@ -15,6 +16,8 @@ namespace Clave5_Grupo6
         {
             InitializeComponent();
         }
+        private int? _selectedId = null;
+        private string _originalDui = null;
 
         // Helper privado para obtener una conexión basada en App.config (evitamos cadenas hardcodeadas)
         private MySqlConnection NuevaConexion()
@@ -32,35 +35,35 @@ namespace Clave5_Grupo6
 
             //Se pregunta si se desea cerrar toda la aplicación o no. 
         }
-        private void btnMostrarDatosHuesped_Click(object sender, EventArgs e)
+        private async Task CargarClientesAsync()
         {
-            /*Se establece conexion 
-             * con la bd para que funcione correctamente*/
-            DataTable dataTable = new DataTable();
+            var dt = new DataTable();
             try
             {
-                using (var conexionDB = NuevaConexion()) // <-- usamos la conexión desde App.config
+                using (var cn = NuevaConexion())
                 {
-                    // Comando en mysql que permite seleccionar todos los datos que se guardaron en la tabla cliente
-                    using (var comando = new MySqlCommand("SELECT * FROM tabla_cliente;", conexionDB))
+                    await cn.OpenAsync();
+                    using (var cmd = new MySqlCommand(
+                        "SELECT id, DuiCliente, Nombresdelcliente, Apellidosdelcliente FROM tabla_cliente", cn))
+                    using (var r = await cmd.ExecuteReaderAsync())
                     {
-                        comando.CommandType = CommandType.Text;
-                        conexionDB.Open();   /*Este comando abre la conexion*/
-
-                        using (var resultado = comando.ExecuteReader())
-                        {
-                            dataTable.Load(resultado);
-                        }
+                        dt.Load(r);
                     }
                 }
+                dgvMostrarTablaCliente.DataSource = dt;
             }
-            catch (Exception ex)           //Manejo de excepciones con un try catch, en caso de haber una manda un mensaje en pantalla
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show("Error al cargar clientes: " + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
 
-            dgvMostrarTablaCliente.DataSource = dataTable;          /*Se asigna en el dgv los valores que se han guardado en el datatable, 
-                                                                     * esto mismo permite presentar los datos de la tabla cliente en el datagridview*/
+        private async void btnMostrarDatosHuesped_Click(object sender, EventArgs e)
+        {
+            await CargarClientesAsync();
+
+           
         }
 
         private bool ValidateAll()
@@ -288,8 +291,87 @@ namespace Clave5_Grupo6
             txtNombreHuesped.Text = "";
         }
 
-        private void btnModificar_Click(object sender, EventArgs e)
+        private async void btnModificar_Click(object sender, EventArgs e)
         {
+            if (_selectedId == null)
+            {
+                MessageBox.Show("Selecciona un cliente en la tabla para modificar", "Modificar",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+
+            }
+            if (!ValidateAll()) return;
+
+            var dui = maskedDui.Text.Trim();
+            var nombre = txtNombreHuesped.Text.Trim();
+            var apellidos = txtIngresarApellidosHuesped.Text.Trim();
+
+
+            /*Se establece conexion 
+             * con la bd para que funcione correctamente*/
+            DataTable dataTable = new DataTable();
+            try
+            {
+                using (var cn = NuevaConexion())
+                {
+                    await cn.OpenAsync();
+
+                    //Si se cambia el dui, se valida que no haya otro registro 
+
+                    if (!string.Equals(_originalDui, dui, StringComparison.Ordinal))
+                    {
+                        using (var chk = new MySqlCommand(
+                            "SELECT 1 FROM tabla_cliente WHERE DuiCliente= @dui AND id <> @id LIMIT 1", cn))
+                        {
+                            chk.Parameters.AddWithValue("@dui", dui);
+                            chk.Parameters.AddWithValue("@id", _selectedId);
+
+                            var exists = await chk.ExecuteScalarAsync();
+                            if (exists != null)
+                            {
+                                MessageBox.Show("Ese DUI ya está asignado a otro cliente"
+                               , "Duplicado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                        }
+                    }
+                    string sql = @"UPDATE tabla_cliente
+                           SET DuiCliente = @dui,
+                               Nombresdelcliente = @nombres,
+                               Apellidosdelcliente = @apellidos
+                           WHERE id = @id";
+                    using (var cmd = new MySqlCommand(sql, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@dui", dui);
+                        cmd.Parameters.AddWithValue("@nombres", nombre);
+                        cmd.Parameters.AddWithValue("@apellidos", apellidos);
+                        cmd.Parameters.AddWithValue("@id", _selectedId);
+
+                        int rows = await cmd.ExecuteNonQueryAsync();
+                        if (rows > 0)
+                        {
+                            MessageBox.Show("Datos del huesped actualizados correctamente",
+                                "Modificar", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            _originalDui = dui; //ahora el dui original es el nuevo
+
+                            //refrescar
+                            btnMostrarDatosHuesped_Click(sender, e);
+                        }
+                        else
+                        {
+                            MessageBox.Show("No se encontró el regisro a actualizar", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            catch (MySqlException ex) when (ex.Number == 1062)           //Manejo de excepciones con un try catch, en caso de haber una manda un mensaje en pantalla
+            {
+                MessageBox.Show("No se pudo actualizar el dui: El DUI ya existe", "Duplicado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al actualizar" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
         }
 
@@ -297,15 +379,38 @@ namespace Clave5_Grupo6
         {
             btnAgregarDatosHuesped.Enabled = IsFormValid();
         }
+
+        private void dgvMostrarTablaCliente_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvMostrarTablaCliente.SelectedRows.Count == 0) return;
+            var row = dgvMostrarTablaCliente.SelectedRows[0];
+
+            _selectedId = Convert.ToInt32(row.Cells["id"].Value);
+            maskedDui.Text = row.Cells["DuiCliente"].Value?.ToString() ?? "";
+            txtNombreHuesped.Text = row.Cells["NombresDelCliente"].Value?.ToString() ?? "";
+            txtIngresarApellidosHuesped.Text = row.Cells["Apellidosdelcliente"].Value?.ToString() ?? "";
+
+
+            _originalDui = maskedDui.Text;
+
+        }
         private void frmCliente_Load(object sender, EventArgs e)
         {
             errorProvider1.BlinkStyle = ErrorBlinkStyle.NeverBlink; //Se configura el estilo de parpardeo para que no parpadee el error provider
             btnAgregarDatosHuesped.Enabled = false; //Se inicia desactivado
 
+            maskedDui.TextMaskFormat = MaskFormat.IncludeLiterals; //Se establece el formato del dui para que incluya los caracteres de formato
             //Se asignan eventos para que al escribir se valide
             maskedDui.TextChanged += Campos_TextChanged;
             txtNombreHuesped.TextChanged += Campos_TextChanged;
             txtIngresarApellidosHuesped.TextChanged += Campos_TextChanged;
+
+
+            //para seleccionar filas completas y de a una 
+            dgvMostrarTablaCliente.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvMostrarTablaCliente.MultiSelect = false;
+
+            dgvMostrarTablaCliente.SelectionChanged += dgvMostrarTablaCliente_SelectionChanged;
         }
     }
 }
