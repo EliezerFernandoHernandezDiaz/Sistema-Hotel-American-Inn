@@ -10,13 +10,20 @@ namespace Clave5_Grupo6
     public partial class frmHabitAciones : Form
     {
 
-        private Dictionary<string, Dictionary<string, decimal>> preciosPorHotelYTipoHabitacion = new Dictionary<string, Dictionary<string, decimal>>();
-
+        // al declarar:
+        private Dictionary<string, Dictionary<string, decimal>> preciosPorHotelYTipoHabitacion =
+            new Dictionary<string, Dictionary<string, decimal>>(StringComparer.OrdinalIgnoreCase);
         public frmHabitAciones()
         {
             InitializeComponent();
+
+            // Asegura que se disparen los eventos de recalcular precio
             cmbTipoHotelfrmHab.SelectedIndexChanged += cmbTipoHotelfrmHab_SelectedIndexChanged;
             cmbTipoHabitacion.SelectedIndexChanged += cmbTipoHabitacion_SelectedIndexChanged;
+
+            // Evita que el usuario escriba texto libre en los combos (reduce errores)
+            cmbTipoHotelfrmHab.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTipoHabitacion.DropDownStyle = ComboBoxStyle.DropDownList;
 
             // Inicializa el diccionario con los precios por tipo de hotel y habitación
             InicializarPrecios();
@@ -30,52 +37,33 @@ namespace Clave5_Grupo6
             return new MySqlConnection(cs);
         
         }
+
         private void InicializarPrecios()
         {
-            preciosPorHotelYTipoHabitacion.Add("Ciudad", new Dictionary<string, decimal>
+            preciosPorHotelYTipoHabitacion["Ciudad"] = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
             {
-                {"Sencilla", 55.00m},
-                {"Doble", 65.00m},
-                {"Deluxe", 75.00m},
-                {"Suite", 85.00m}
-            });
-
-            preciosPorHotelYTipoHabitacion.Add("Playa", new Dictionary<string, decimal>
+                ["Sencilla"] = 55.00m,
+                ["Doble"] = 65.00m,
+                ["Deluxe"] = 75.00m,
+                ["Suite"] = 85.00m
+            };
+            preciosPorHotelYTipoHabitacion["Playa"] = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
             {
-                {"Sencilla", 65.00m},
-                {"Doble", 75.00m},
-                {"Deluxe", 90.00m},
-                {"Suite", 100.00m}
-            });
-
-            preciosPorHotelYTipoHabitacion.Add("Montaña", new Dictionary<string, decimal>
+                ["Sencilla"] = 65.00m,
+                ["Doble"] = 75.00m,
+                ["Deluxe"] = 90.00m,
+                ["Suite"] = 100.00m
+            };
+            preciosPorHotelYTipoHabitacion["Montaña"] = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
             {
-                {"Sencilla", 60.00m},
-                {"Doble", 70.00m},
-                {"Deluxe", 80.00m},
-                {"Suite", 90.00m}
-            });
+                ["Sencilla"] = 60.00m,
+                ["Doble"] = 70.00m,
+                ["Deluxe"] = 80.00m,
+                ["Suite"] = 90.00m
+            };
         }
 
-
-        private void btnProbarConexfrmHab_Click(object sender, EventArgs e)
-        {
-
-            // Crea una instancia de la clase CConexion y utiliza el método EstablecerConexion
-            CConexion conexionObj = new CConexion();
-            MySqlConnection conexion = conexionObj.EstablecerConexion();
-
-            if (conexion != null)
-            {
-                MessageBox.Show("Conexión exitosa");
-
-            }
-            else
-            {
-                MessageBox.Show("No se pudo establecer la conexión");
-            }
-        }
-
+        
         private void btnCerrarfrmDatosHab_Click(object sender, EventArgs e)
         {
 
@@ -94,30 +82,43 @@ namespace Clave5_Grupo6
                 {
                     conexionDB.Open();
 
-                    // Crear un comando SQL para la inserción con parámetros
-                    string sql = "INSERT INTO tabla_habitaciones (id_Habitaciones, Tipo_de_Habitacion, Precio_Base, Tipo_de_hotel, Equipo_disponible) " +
-                                 "VALUES (@idHabitaciones, @TipodeHabitacion, @PrecioBase, @Tipodehotel, @EquipoDisponible)";
+                    // Genera un código tipo HAB-20250808-001 (ajústalo a tu gusto)
+                    string codigo = "HAB-" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
+
+                    // SQL con la nueva columna
+                   string sql = @"INSERT INTO tabla_habitaciones
+                      (Tipo_de_Habitacion, Precio_Base, Tipo_de_hotel, Equipo_disponible, codigo_habitacion)
+                             VALUES (@TipodeHabitacion, @PrecioBase, @Tipodehotel, @EquipoDisponible, @Codigo)";
 
                     using (MySqlCommand cmd = new MySqlCommand(sql, conexionDB))
                     {
-                        // Agregar parámetros
-                        cmd.Parameters.AddWithValue("@idHabitaciones", txtIngreseIdHabitacion.Text);
                         cmd.Parameters.AddWithValue("@TipodeHabitacion", cmbTipoHabitacion.Text);
-                        decimal precio = decimal.Parse(txtPrecioBasefrmHabitacion.Text.Replace("$", "").Replace(",", ""));
+                        // Evita problemas regionales al parsear moneda:
+                        var raw = txtPrecioBasefrmHabitacion.Text.Replace("$", "").Trim();
+                        if (!decimal.TryParse(raw, System.Globalization.NumberStyles.Any,
+                            System.Globalization.CultureInfo.InvariantCulture, out var precio))
+                        {
+                            MessageBox.Show("Precio inválido."); return;
+                        }
                         cmd.Parameters.AddWithValue("@PrecioBase", precio);
                         cmd.Parameters.AddWithValue("@Tipodehotel", cmbTipoHotelfrmHab.Text);
-                        cmd.Parameters.AddWithValue("@EquipoDisponible", txtEquipoDisponiblefrmHab.Text);
+                        cmd.Parameters.AddWithValue("@EquipoDisponible", txtEquipoDisponiblefrmHab.Text ?? "");
+                        cmd.Parameters.AddWithValue("@Codigo", codigo);
 
                         cmd.ExecuteNonQuery();
                     }
                 }
 
                 // Agregar cualquier lógica adicional después de la inserción, si es necesario
-                MessageBox.Show("Datos de la habitación agregados correctamente");
+                MessageBox.Show("Datos de la habitación agregados correctamente", "Mensaje de confirmación", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al agregar datos de la habitación: " + ex.Message);
+            
+            {
+                MessageBox.Show("Error al agregar datos de la habitación: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+              
             }
             btnMostrarDatosHabitacion_Click(sender, e);
         }
@@ -161,11 +162,11 @@ namespace Clave5_Grupo6
 
         private void txtLimpiarCamposHabitacion_Click(object sender, EventArgs e)
         {
-            txtIngreseIdHabitacion.Text = "";
-            txtLimpiarCamposHabitacion.Text = "";
-            txtPrecioBasefrmHabitacion.Text = "";
-            cmbTipoHabitacion.Text = "";
-            cmbTipoHotelfrmHab.Text = "";
+            txtEquipoDisponiblefrmHab.Clear();
+            txtPrecioBasefrmHabitacion.Clear();
+            cmbTipoHabitacion.SelectedIndex = -1;
+            cmbTipoHotelfrmHab.SelectedIndex = -1;
+
         }
 
         private void cmbTipoHotelfrmHab_SelectedIndexChanged(object sender, EventArgs e)
@@ -180,19 +181,27 @@ namespace Clave5_Grupo6
 
         private void ActualizarPrecio()
         {
-            string tipoHotel = cmbTipoHotelfrmHab.Text;
-            string tipoHabitacion = cmbTipoHabitacion.Text;
+            // Lee de forma robusta: usa SelectedItem si existe; si no, usa Text; y recorta espacios
+            var tipoHotel = (cmbTipoHotelfrmHab.SelectedItem ?? cmbTipoHotelfrmHab.Text)?.ToString().Trim();
+            var tipoHabitacion = (cmbTipoHabitacion.SelectedItem ?? cmbTipoHabitacion.Text)?.ToString().Trim();
 
-            if (preciosPorHotelYTipoHabitacion.ContainsKey(tipoHotel) && preciosPorHotelYTipoHabitacion[tipoHotel].ContainsKey(tipoHabitacion))
+            if (!string.IsNullOrWhiteSpace(tipoHotel) &&
+                !string.IsNullOrWhiteSpace(tipoHabitacion) &&
+                preciosPorHotelYTipoHabitacion.TryGetValue(tipoHotel, out var preciosPorTipo) &&
+                preciosPorTipo.TryGetValue(tipoHabitacion, out var precio))
             {
-                decimal precio = preciosPorHotelYTipoHabitacion[tipoHotel][tipoHabitacion];
-                txtPrecioBasefrmHabitacion.Text = precio.ToString("C");
+                // Muestra el precio con formato moneda
+                txtPrecioBasefrmHabitacion.Text = precio.ToString("C2");
             }
             else
             {
-                txtPrecioBasefrmHabitacion.Text = "No disponible";
+                // Si no hay coincidencia, deja vacío o muestra un mensaje amigable
+                txtPrecioBasefrmHabitacion.Text = "";
+                // Para depurar, puedes activar este mensaje:
+                // MessageBox.Show($"No match -> Hotel: '{tipoHotel}' | Hab: '{tipoHabitacion}'");
             }
         }
+
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             // Verifica si se ha seleccionado una fila en el DataGridView
@@ -209,7 +218,7 @@ namespace Clave5_Grupo6
             }
             else
             {
-                MessageBox.Show("Por favor, selecciona una fila para eliminar.");
+                MessageBox.Show("Por favor, selecciona una fila para eliminar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 
@@ -242,6 +251,11 @@ namespace Clave5_Grupo6
             {
                 MessageBox.Show("Error al eliminar la habitación: " + ex.Message);
             }
+        }
+
+        private void frmHabitAciones_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

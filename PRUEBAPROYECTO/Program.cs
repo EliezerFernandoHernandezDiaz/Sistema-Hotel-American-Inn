@@ -18,7 +18,7 @@ namespace Clave5_Grupo6
             // using (var login = new frmLogin())
             {
              //   if (login.ShowDialog() == DialogResult.OK)
-                    Application.Run(new frmCliente());
+                    Application.Run(new frmHabitAciones());
             }                                      /*Aqui cambiamos el orden en que se van a ejecutar los formularios
                                                        * ya que como tenemos varios queremos que se llene primero el de clientes 
                                                        * porque ahí está la primera relación entre el dui de la tabla cliente y las demas 

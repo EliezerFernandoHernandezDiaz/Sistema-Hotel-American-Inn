@@ -29,7 +29,6 @@ namespace Clave5_Grupo6
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnProbarConexfrmPago = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.txtIdPagofrmPago = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -53,16 +52,6 @@ namespace Clave5_Grupo6
             this.btnEliminar = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMostrarTablaPago)).BeginInit();
             this.SuspendLayout();
-            // 
-            // btnProbarConexfrmPago
-            // 
-            this.btnProbarConexfrmPago.Location = new System.Drawing.Point(1099, 52);
-            this.btnProbarConexfrmPago.Name = "btnProbarConexfrmPago";
-            this.btnProbarConexfrmPago.Size = new System.Drawing.Size(127, 51);
-            this.btnProbarConexfrmPago.TabIndex = 12;
-            this.btnProbarConexfrmPago.Text = "Probar la conexion ";
-            this.btnProbarConexfrmPago.UseVisualStyleBackColor = true;
-            this.btnProbarConexfrmPago.Click += new System.EventHandler(this.btnProbarConexfrmPago_Click);
             // 
             // label1
             // 
@@ -288,7 +277,6 @@ namespace Clave5_Grupo6
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtIdPagofrmPago);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.btnProbarConexfrmPago);
             this.Name = "frmPago";
             this.Text = "frmPago";
             this.Load += new System.EventHandler(this.frmPago_Load);
@@ -299,8 +287,6 @@ namespace Clave5_Grupo6
         }
 
         #endregion
-
-        private System.Windows.Forms.Button btnProbarConexfrmPago;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtIdPagofrmPago;
         private System.Windows.Forms.Label label2;

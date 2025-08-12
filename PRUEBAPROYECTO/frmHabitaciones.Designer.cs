@@ -29,17 +29,13 @@ namespace Clave5_Grupo6
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtIngreseIdHabitacion = new System.Windows.Forms.TextBox();
             this.cmbTipoHabitacion = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.txtPrecioBasefrmHabitacion = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.cmbTipoHotelfrmHab = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.txtEquipoDisponiblefrmHab = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.btnProbarConexfrmHab = new System.Windows.Forms.Button();
             this.dgvTablaHabitacion = new System.Windows.Forms.DataGridView();
             this.btnAgregarDatosHabitacion = new System.Windows.Forms.Button();
             this.btnMostrarDatosHabitacion = new System.Windows.Forms.Button();
@@ -47,24 +43,11 @@ namespace Clave5_Grupo6
             this.btnCerrarfrmDatosHab = new System.Windows.Forms.Button();
             this.btnIrATablaPago = new System.Windows.Forms.Button();
             this.btnEliminar = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTablaHabitacion)).BeginInit();
             this.SuspendLayout();
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(54, 43);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(189, 17);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Ingrese el id de la habitacion";
-            // 
-            // txtIngreseIdHabitacion
-            // 
-            this.txtIngreseIdHabitacion.Location = new System.Drawing.Point(306, 43);
-            this.txtIngreseIdHabitacion.Name = "txtIngreseIdHabitacion";
-            this.txtIngreseIdHabitacion.Size = new System.Drawing.Size(251, 22);
-            this.txtIngreseIdHabitacion.TabIndex = 1;
             // 
             // cmbTipoHabitacion
             // 
@@ -74,7 +57,7 @@ namespace Clave5_Grupo6
             "Doble",
             "Deluxe ",
             "Suite"});
-            this.cmbTipoHabitacion.Location = new System.Drawing.Point(306, 207);
+            this.cmbTipoHabitacion.Location = new System.Drawing.Point(369, 152);
             this.cmbTipoHabitacion.Name = "cmbTipoHabitacion";
             this.cmbTipoHabitacion.Size = new System.Drawing.Size(251, 24);
             this.cmbTipoHabitacion.TabIndex = 2;
@@ -83,27 +66,17 @@ namespace Clave5_Grupo6
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(54, 207);
+            this.label2.Location = new System.Drawing.Point(54, 152);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(213, 17);
+            this.label2.Size = new System.Drawing.Size(0, 16);
             this.label2.TabIndex = 3;
-            this.label2.Text = "Seleccione un tipo de habitación";
             // 
             // txtPrecioBasefrmHabitacion
             // 
-            this.txtPrecioBasefrmHabitacion.Location = new System.Drawing.Point(306, 281);
+            this.txtPrecioBasefrmHabitacion.Location = new System.Drawing.Point(306, 245);
             this.txtPrecioBasefrmHabitacion.Name = "txtPrecioBasefrmHabitacion";
             this.txtPrecioBasefrmHabitacion.Size = new System.Drawing.Size(251, 22);
             this.txtPrecioBasefrmHabitacion.TabIndex = 4;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(54, 286);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(152, 17);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "Precio de la habitación";
             // 
             // cmbTipoHotelfrmHab
             // 
@@ -112,7 +85,7 @@ namespace Clave5_Grupo6
             "Ciudad ",
             "Playa ",
             "Montaña"});
-            this.cmbTipoHotelfrmHab.Location = new System.Drawing.Point(306, 119);
+            this.cmbTipoHotelfrmHab.Location = new System.Drawing.Point(326, 56);
             this.cmbTipoHotelfrmHab.Name = "cmbTipoHotelfrmHab";
             this.cmbTipoHotelfrmHab.Size = new System.Drawing.Size(251, 24);
             this.cmbTipoHotelfrmHab.TabIndex = 6;
@@ -121,16 +94,17 @@ namespace Clave5_Grupo6
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(54, 126);
+            this.label4.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(15, 56);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(179, 17);
+            this.label4.Size = new System.Drawing.Size(285, 27);
             this.label4.TabIndex = 7;
             this.label4.Text = "Seleccione un tipo de hotel\r\n";
             // 
             // txtEquipoDisponiblefrmHab
             // 
             this.txtEquipoDisponiblefrmHab.Enabled = false;
-            this.txtEquipoDisponiblefrmHab.Location = new System.Drawing.Point(306, 362);
+            this.txtEquipoDisponiblefrmHab.Location = new System.Drawing.Point(306, 351);
             this.txtEquipoDisponiblefrmHab.Name = "txtEquipoDisponiblefrmHab";
             this.txtEquipoDisponiblefrmHab.Size = new System.Drawing.Size(251, 22);
             this.txtEquipoDisponiblefrmHab.TabIndex = 8;
@@ -139,26 +113,15 @@ namespace Clave5_Grupo6
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(54, 367);
+            this.label5.Location = new System.Drawing.Point(69, 362);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(120, 17);
+            this.label5.Size = new System.Drawing.Size(0, 16);
             this.label5.TabIndex = 9;
-            this.label5.Text = "Equipo disponible";
-            // 
-            // btnProbarConexfrmHab
-            // 
-            this.btnProbarConexfrmHab.Location = new System.Drawing.Point(1016, 39);
-            this.btnProbarConexfrmHab.Name = "btnProbarConexfrmHab";
-            this.btnProbarConexfrmHab.Size = new System.Drawing.Size(127, 51);
-            this.btnProbarConexfrmHab.TabIndex = 12;
-            this.btnProbarConexfrmHab.Text = "Probar la conexion ";
-            this.btnProbarConexfrmHab.UseVisualStyleBackColor = true;
-            this.btnProbarConexfrmHab.Click += new System.EventHandler(this.btnProbarConexfrmHab_Click);
             // 
             // dgvTablaHabitacion
             // 
             this.dgvTablaHabitacion.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvTablaHabitacion.Location = new System.Drawing.Point(633, 138);
+            this.dgvTablaHabitacion.Location = new System.Drawing.Point(660, 135);
             this.dgvTablaHabitacion.Name = "dgvTablaHabitacion";
             this.dgvTablaHabitacion.RowHeadersWidth = 51;
             this.dgvTablaHabitacion.RowTemplate.Height = 24;
@@ -225,11 +188,45 @@ namespace Clave5_Grupo6
             this.btnEliminar.UseVisualStyleBackColor = true;
             this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(12, 152);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(339, 54);
+            this.label1.TabIndex = 20;
+            this.label1.Text = "Seleccione un tipo de habitación\r\n\r\n";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(15, 240);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(241, 81);
+            this.label6.TabIndex = 21;
+            this.label6.Text = "Precio de la habitación\r\n\r\n\r\n";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(12, 346);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(195, 81);
+            this.label3.TabIndex = 22;
+            this.label3.Text = "Equipo Disponible\r\n\r\n\r\n";
+            // 
             // frmHabitAciones
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(1454, 757);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.btnEliminar);
             this.Controls.Add(this.btnIrATablaPago);
             this.Controls.Add(this.btnCerrarfrmDatosHab);
@@ -237,19 +234,16 @@ namespace Clave5_Grupo6
             this.Controls.Add(this.btnMostrarDatosHabitacion);
             this.Controls.Add(this.btnAgregarDatosHabitacion);
             this.Controls.Add(this.dgvTablaHabitacion);
-            this.Controls.Add(this.btnProbarConexfrmHab);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.txtEquipoDisponiblefrmHab);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.cmbTipoHotelfrmHab);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.txtPrecioBasefrmHabitacion);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.cmbTipoHabitacion);
-            this.Controls.Add(this.txtIngreseIdHabitacion);
-            this.Controls.Add(this.label1);
             this.Name = "frmHabitAciones";
             this.Text = "frmHabitaciones";
+            this.Load += new System.EventHandler(this.frmHabitAciones_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvTablaHabitacion)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -257,18 +251,13 @@ namespace Clave5_Grupo6
         }
 
         #endregion
-
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtIngreseIdHabitacion;
         private System.Windows.Forms.ComboBox cmbTipoHabitacion;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtPrecioBasefrmHabitacion;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox cmbTipoHotelfrmHab;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtEquipoDisponiblefrmHab;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Button btnProbarConexfrmHab;
         private System.Windows.Forms.DataGridView dgvTablaHabitacion;
         private System.Windows.Forms.Button btnAgregarDatosHabitacion;
         private System.Windows.Forms.Button btnMostrarDatosHabitacion;
@@ -276,5 +265,8 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.Button btnCerrarfrmDatosHab;
         private System.Windows.Forms.Button btnIrATablaPago;
         private System.Windows.Forms.Button btnEliminar;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label3;
     }
 }
