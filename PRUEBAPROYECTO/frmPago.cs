@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
+using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography; //Para leer la cadena de conexión desde app.config 
 using System.Windows.Forms;
 using MySqlConnector;
-using System.Configuration;
-using System.Security.Cryptography; //Para leer la cadena de conexión desde app.config 
 
 namespace Clave5_Grupo6
 {
@@ -28,57 +29,125 @@ namespace Clave5_Grupo6
             cmbTipoPagofrmPago.Items.AddRange(new[] { "Efectivo", "Tarjeta", "Bitcoin" });
 
             //Cuando se cambia la reserva o fechas o ingreso anticipado se actualizan los precios
-            cmbReserva.SelectedIndexChanged += (_, __) =>();
+            cmbReserva.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTipoPagofrmPago.DropDownStyle = ComboBoxStyle.DropDownList;
 
+            // Métodos de pago del enunciado
+            cmbTipoPagofrmPago.Items.Clear();
+            cmbTipoPagofrmPago.Items.AddRange(new[] { "Efectivo", "Tarjeta", "Bitcoin" });
+
+            // Eventos: cuando cambia reserva o fechas o ingreso anticipado, recalculamos
+            cmbReserva.SelectedIndexChanged += (_, __) => CargarReservaYRecalcular();
+           dtpCheckInn.ValueChanged += (_, __) => RecalcularMontos();      // si permites modificar fechas aquí
+           dtpCheckOut.ValueChanged += (_, __) => RecalcularMontos();
+            chkIngresoAnticipado.CheckedChanged += (_, __) => RecalcularMontos();
 
         }
+        // 1) Cargar reservas en el ComboBox (lo que el usuario va a pagar)
+        private void CargarReservasEnCombo()
+        {
+            using var cn = NuevaConexion();
+            using var da = new MySqlDataAdapter(@"
+                SELECT 
+                    r.id_reserva,
+                    r.habitacion_id,
+                    r.fecha_entrada,
+                    r.fecha_salida,
+                    r.ingreso_anticipado,
+                    h.codigo_habitacion,
+                    h.Precio_Base
+                FROM tabla_reserva r
+                JOIN tabla_habitaciones h ON h.id_Habitaciones = r.habitacion_id
+                ORDER BY r.id_reserva DESC;", cn);
 
+            var dt = new DataTable();
+            da.Fill(dt);
+
+            // Armar una columna legible para el display
+            dt.Columns.Add("display", typeof(string));
+            foreach (DataRow row in dt.Rows)
+            {
+                var codigo = row["codigo_habitacion"]?.ToString();
+                var fIn = ((DateTime)row["fecha_entrada"]).ToString("yyyy-MM-dd");
+                var fOut = ((DateTime)row["fecha_salida"]).ToString("yyyy-MM-dd");
+                row["display"] = $"#{row["id_reserva"]} | {codigo} | {fIn} → {fOut}";
+            }
+
+            cmbReserva.DataSource = dt;
+            cmbReserva.ValueMember = "id_reserva";
+            cmbReserva.DisplayMember = "display";
+
+            if (cmbReserva.Items.Count > 0)
+                cmbReserva.SelectedIndex = 0;
+        }
+        //2 cargar los datos de la reserva y recalcular montos
         private void CargarReservaYRecalcular()
         {
             if (cmbReserva.SelectedValue == null) return;
+
             _reservaIdActual = Convert.ToInt32(cmbReserva.SelectedValue);
+
             using var cn = NuevaConexion();
             cn.Open();
             using var cmd = new MySqlCommand(@"
-                SELECT
-                r.habitacion_id, 
-                r.fecha_entrada,
-                r.fecha_salida, 
-                r.ingreso_anticipado,
-                h.Precio_base
+                SELECT 
+                    r.habitacion_id,
+                    r.fecha_entrada,
+                    r.fecha_salida,
+                    r.ingreso_anticipado,
+                    h.Precio_Base
                 FROM tabla_reserva r
-                JOIN tabla_habitaciones h ON h.id_Habitaciones= r.habitacion_id
-                WHERE r.id_reserva= @id;", cn);
+                JOIN tabla_habitaciones h ON h.id_Habitaciones = r.habitacion_id
+                WHERE r.id_reserva = @id;", cn);
             cmd.Parameters.AddWithValue("@id", _reservaIdActual);
+
             using var rd = cmd.ExecuteReader();
+            if (!rd.Read())
+            {
+                MessageBox.Show("No se encontró la reserva seleccionada.");
+                return;
+            }
 
+            _habitacionIdActual = rd.GetInt32("habitacion_id");
+            _precioBase = rd.GetDecimal("Precio_Base");
+
+            // Si en Pago quieres mostrar/permitir mover fechas, sincroniza los DTP
+           dtpCheckInn.Value = rd.GetDateTime("fecha_entrada");
+           dtpCheckOut.Value = rd.GetDateTime("fecha_salida");
+            chkIngresoAnticipado.Checked = rd.GetBoolean("ingreso_anticipado");
+
+            // Mostrar precio base
+            txtPrecioBase.Text = _precioBase.ToString("C2", CultureInfo.CurrentCulture);
+
+            RecalcularMontos();
         }
-        private void ActualizarPrecios(object sender, EventArgs e)
+        // 3) Recalcular (noches, subtotal, extra, IVA, total)
+        private void RecalcularMontos()
         {
-            string tipoHotel = cmb.Text;
-            string tipoHabitacion = cmbTipoHabitacionfrmPago.Text;
+            var entrada = dtpCheckInn.Value.Date;
+            var salida = dtpCheckOut.Value.Date;
 
-            Hotel hotel = ObtenerHotel(tipoHotel);
-            Habitacion habitacion = ObtenerHabitacion(hotel, tipoHabitacion);
-
-            if (habitacion != null)
+            // Validaciones simples
+            if (salida <= entrada)
             {
-                // Mostrar el precio de la habitación en el TextBox correspondiente
-                txtPrecioBase.Text = habitacion.Precio.ToString("0.00");
+                txtNoches.Text = "0";
+                txtPrecioFinalfrmPago.Text = 0m.ToString("C2");
+                return;
+            }
 
-                // Calcular y mostrar el precio final incluyendo el IVA
-                decimal iva = 0.13m; // IVA del 13%
-                decimal precioFinal = habitacion.Precio + (habitacion.Precio * iva);
-                txtPrecioFinalfrmPago.Text = precioFinal.ToString("0.00");
-            }
-            else
-            {
-                // Si no se encuentra la habitación, establecer los TextBox a cero
-                txtPrecioBase.Text = "0.00";
-                txtPrecioFinalfrmPago.Text = "0.00";
-            }
+            int noches = Math.Max(1, (salida - entrada).Days);  // al menos 1 noche
+            txtNoches.ReadOnly = true;                          // Noches no se edita
+            txtNoches.Text = noches.ToString();
+
+            decimal subtotal = _precioBase * noches;
+            decimal extra = chkIngresoAnticipado.Checked ? 20m : 0m;     // +$20 si ingreso anticipado
+            decimal imponible = subtotal + extra;
+            decimal iva = Math.Round(imponible * 0.13m, 2);              // IVA 13%
+            decimal total = imponible + iva;
+
+            txtPrecioFinalfrmPago.Text = total.ToString("C2", CultureInfo.CurrentCulture);
         }
-      private Hotel ObtenerHotel(string tipoHotel)
+        private Hotel ObtenerHotel(string tipoHotel)
         {
             switch (tipoHotel)
             {
@@ -131,60 +200,78 @@ namespace Clave5_Grupo6
             cmd.Parameters.AddWithValue("@in", entrada.Date);
             cmd.Parameters.AddWithValue("@out", salida.Date);
             cmd.Parameters.AddWithValue("@ing", ingresoAnt ? 1 : 0);
-            return Convert.ToInt32(cmd.ExecuteScalar());
+            return Convert.ToInt32(cmd.ExecuteScalar()); 
         }
-
-        // Ejemplo de navegación:
-        int idReserva = CrearReservaProvisional(clienteId, habitacionId, dtpEntrada.Value, dtpSalida.Value, chkIngresoAnt.Checked);
-        var frm = new frmPago(idReserva);
-        frm.Show();
+        
 
         private void btnAgregarDatosPago_Click(object sender, EventArgs e)
         {
-            //Se borra la cadena harcodeada 
-            // string cadenaConexion = "database=clave5_grupo6db;server=localhost;user id=root;password=Fernandomysql";
-            // asumiendo: cmbReserva (ValueMember=id_reserva), cmbMetodoPago (Efectivo/Tarjeta/Bitcoin)
-            int reservaId = (int)cmbReserva.SelectedValue;
-            decimal precioBase = /* del dataset de la vista o consulta */;
-            int noches = Math.Max(1, (fechaSalida - fechaEntrada).Days);
-            decimal subtotal = precioBase * noches;
-            decimal extra = chkIngresoAnticipado.Checked ? 20m : 0m;
-            decimal iva = Math.Round(subtotal * 0.13m, 2);
-            decimal total = subtotal + iva + extra;
+            if (_reservaIdActual == 0)
+            {
+                MessageBox.Show("Seleccione una reserva.");
+                return;
+            }
+            if (cmbTipoPagofrmPago.SelectedItem == null)
+            {
+                MessageBox.Show("Seleccione el método de pago.");
+                return;
+            }
 
+            // Tomar valores calculados desde los controles
+            int noches = int.TryParse(txtNoches.Text, out var n) ? n : 0;
+            if (noches <= 0)
+            {
+                MessageBox.Show("Rango de fechas inválido.");
+                return;
+            }
+
+            decimal subtotal = _precioBase * noches;
+            decimal extra = chkIngresoAnticipado.Checked ? 20m : 0m;
+            decimal imponible = subtotal + extra;
+            decimal iva = Math.Round(imponible * 0.13m, 2);
+            decimal total = imponible + iva;
 
             try
             {
-                using (var cn = NuevaConexion())
+                using var cn = NuevaConexion();
+                cn.Open();
+
+                // Si permitiste cambiar fechas en Pago, opcionalmente actualiza la reserva aquí
+                using (var up = new MySqlCommand(
+                    "UPDATE tabla_reserva SET fecha_entrada=@in, fecha_salida=@out, ingreso_anticipado=@ant WHERE id_reserva=@id;", cn))
                 {
-                    cn.Open();
-                    string sql = @"INSERT INTO pagos
-                   (reserva_id, metodo_pago, precio_base, noches, subtotal, extra_ingreso, iva, total)
-                   VALUES (@reserva_id, @metodo, @precio_base, @noches, @subtotal, @extra, @iva, @total)";
-                    using (var cmd = new MySqlCommand(sql, cn))
-                    {
-                        cmd.Parameters.AddWithValue("@reserva_id", reservaId);
-                        cmd.Parameters.AddWithValue("@metodo", cmbTipoPagofrmPago.Text);
-                        cmd.Parameters.AddWithValue("@precio_base", precioBase);
-                        cmd.Parameters.AddWithValue("@noches", noches);
-                        cmd.Parameters.AddWithValue("@subtotal", subtotal);
-                        cmd.Parameters.AddWithValue("@extra", extra);
-                        cmd.Parameters.AddWithValue("@iva", iva);
-                        cmd.Parameters.AddWithValue("@total", total);
-                        cmd.ExecuteNonQuery();
-                    }
+                    up.Parameters.AddWithValue("@in", dtpCheckInn.Value.Date);
+                    up.Parameters.AddWithValue("@out", dtpCheckOut.Value.Date);
+                    up.Parameters.AddWithValue("@ant", chkIngresoAnticipado.Checked ? 1 : 0);
+                    up.Parameters.AddWithValue("@id", _reservaIdActual);
+                    up.ExecuteNonQuery();
                 }
-                /*Uso del try catch para manejar excepciones, y si todo esta bien 
-                 * manda un mensaje que nuestros datos se han agregado*/
-                MessageBox.Show("Datos de pago agregados correctamente.");
+
+                // Insertar pago
+                using (var cmd = new MySqlCommand(@"
+                    INSERT INTO pagos
+                      (reserva_id, metodo_pago, precio_base, noches, subtotal, extra_ingreso, iva, total)
+                    VALUES
+                      (@reserva_id, @metodo_pago, @precio_base, @noches, @subtotal, @extra, @iva, @total);", cn))
+                {
+                    cmd.Parameters.AddWithValue("@reserva_id", _reservaIdActual);
+                    cmd.Parameters.AddWithValue("@metodo_pago", cmbTipoPagofrmPago.Text);
+                    cmd.Parameters.AddWithValue("@precio_base", _precioBase);
+                    cmd.Parameters.AddWithValue("@noches", noches);
+                    cmd.Parameters.AddWithValue("@subtotal", subtotal);
+                    cmd.Parameters.AddWithValue("@extra", extra);
+                    cmd.Parameters.AddWithValue("@iva", iva);
+                    cmd.Parameters.AddWithValue("@total", total);
+                    cmd.ExecuteNonQuery();
+                }
+
+                MessageBox.Show("Pago registrado correctamente.");
+                btnMostrarPagos_Click(sender, e); // refresca el grid
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al agregar datos de pago: " + ex.Message);
+                MessageBox.Show("Error al registrar el pago: " + ex.Message);
             }
-            btnMostrarPagos_Click(sender, e);         /*Despues de agregar todo, utilizamos el evento del boton mostrar 
-                                                       * para actualizar en el dgv la información nueva*/
-
         }
 
         private void btnProbarConexfrmPago_Click(object sender, EventArgs e)
@@ -245,13 +332,34 @@ namespace Clave5_Grupo6
             frmReserva frm = new frmReserva();
             frm.Show();
         }
+        // (OPCIONAL) Valida disponibilidad al mover fechas aquí
+        private bool EstaDisponible(int habitacionId, DateTime entrada, DateTime salida, int? excluirReserva = null)
+        {
+            using var cn = NuevaConexion();
+            cn.Open();
+            var sql = @"
+                SELECT COUNT(*)
+                FROM tabla_reserva
+                WHERE habitacion_id = @hab
+                  AND (@exc IS NULL OR id_reserva <> @exc)
+                  AND NOT (fecha_salida <= @in OR fecha_entrada >= @out);";
+            using var cmd = new MySqlCommand(sql, cn);
+            cmd.Parameters.AddWithValue("@hab", habitacionId);
+            cmd.Parameters.AddWithValue("@in", entrada.Date);
+            cmd.Parameters.AddWithValue("@out", salida.Date);
+            cmd.Parameters.AddWithValue("@exc", (object?)excluirReserva ?? DBNull.Value);
+            return Convert.ToInt32(cmd.ExecuteScalar()) == 0;
+        }
 
         private void btnLimpiarCamposPago_Click(object sender, EventArgs e)
         {
-            txtIdHabFK.Text = "";
-            txtIdPagofrmPago.Text = "";
+            txtNoches.Text = "";
             txtPrecioBase.Text = "";
             txtPrecioFinalfrmPago.Text = "";
+            chkIngresoAnticipado.Checked = false;
+
+            if (cmbTipoPagofrmPago.Items.Count > 0) cmbTipoPagofrmPago.SelectedIndex = -1;
+            if (cmbReserva.Items.Count > 0) cmbReserva.SelectedIndex = -1;
         }
 
         private void btnEliminar_Click(object sender, EventArgs e)
