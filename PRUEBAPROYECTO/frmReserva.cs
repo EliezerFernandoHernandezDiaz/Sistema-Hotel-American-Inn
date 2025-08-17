@@ -213,7 +213,7 @@
                     {
                         // Agregar parámetros
                         cmd.Parameters.AddWithValue("@IdHabitacion", txtIdHabitacion.Text);
-                        cmd.Parameters.AddWithValue("@IdTablaPago", txtIdPago.Text);
+                        cmd.Parameters.AddWithValue("@IdTablaPago", txtHotelSeleccionado.Text);
                         cmd.Parameters.AddWithValue("@DUI", txtDUI.Text);
                         cmd.Parameters.AddWithValue("@FechaEntrada", dtpFechaEntrada.Text);
                         cmd.Parameters.AddWithValue("@FechaSalida", dtpFechaSalida.Text);

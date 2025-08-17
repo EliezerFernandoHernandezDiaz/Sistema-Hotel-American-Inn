@@ -35,7 +35,7 @@ namespace Clave5_Grupo6
             var cs = ConfigurationManager.ConnectionStrings["MySqlConn"]?.ConnectionString;
 
             return new MySqlConnection(cs);
-        
+
         }
 
         private void InicializarPrecios()
@@ -63,7 +63,7 @@ namespace Clave5_Grupo6
             };
         }
 
-        
+
         private void btnCerrarfrmDatosHab_Click(object sender, EventArgs e)
         {
 
@@ -73,7 +73,7 @@ namespace Clave5_Grupo6
         private void btnAgregarDatosHabitacion_Click(object sender, EventArgs e)
         {
             //se elimina la cadena harcodeada y se usa app.config mediante nuevaConexion()
-          //  string cadenaConexion = "database=clave5_grupo6db;server=localhost;user id=root;password=Fernandomysql";
+            //  string cadenaConexion = "database=clave5_grupo6db;server=localhost;user id=root;password=Fernandomysql";
 
             try
             {
@@ -86,7 +86,7 @@ namespace Clave5_Grupo6
                     string codigo = "HAB-" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
 
                     // SQL con la nueva columna
-                   string sql = @"INSERT INTO tabla_habitaciones
+                    string sql = @"INSERT INTO tabla_habitaciones
                       (Tipo_de_Habitacion, Precio_Base, Tipo_de_hotel, Equipo_disponible, codigo_habitacion)
                              VALUES (@TipodeHabitacion, @PrecioBase, @Tipodehotel, @EquipoDisponible, @Codigo)";
 
@@ -114,11 +114,11 @@ namespace Clave5_Grupo6
             }
             catch (Exception ex)
             {
-            
-            {
-                MessageBox.Show("Error al agregar datos de la habitación: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-              
+
+                {
+                    MessageBox.Show("Error al agregar datos de la habitación: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
             }
             btnMostrarDatosHabitacion_Click(sender, e);
         }
@@ -128,15 +128,15 @@ namespace Clave5_Grupo6
         {
             //Lo mismo, se elimina la cadena harcodeada y se usa app.config mediante metodo NuevaConexion()
 
-           // string cadenaConexion = "database= clave5_grupo6db;  server=localhost; user id= root; password= Fernandomysql";
+            // string cadenaConexion = "database= clave5_grupo6db;  server=localhost; user id= root; password= Fernandomysql";
 
             DataTable dataTable = new DataTable();
-            
+
             try
             {
                 using (var conexionDB = NuevaConexion())
                 {
-                    using (var comando = new MySqlCommand("SELECT * FROM tabla_habitaciones;", conexionDB) )
+                    using (var comando = new MySqlCommand("SELECT * FROM tabla_habitaciones;", conexionDB))
                     {
                         comando.CommandType = CommandType.Text;
                         conexionDB.Open();
@@ -144,7 +144,7 @@ namespace Clave5_Grupo6
                         {
                             dataTable.Load(resultado);
                         }
-                    }    
+                    }
                 }
             }
             catch (Exception ex)
@@ -229,7 +229,7 @@ namespace Clave5_Grupo6
             //string cadenaConexion = "database=clave5_grupo6db;server=localhost;user id=root;password=Fernandomysql";
             try
             {
-               using (var conexionDB= NuevaConexion())
+                using (var conexionDB = NuevaConexion())
                 {
                     conexionDB.Open();
 
@@ -257,7 +257,8 @@ namespace Clave5_Grupo6
         {
 
         }
-    }
-}
 
+    
+        }
+    }
 

@@ -3,23 +3,59 @@ using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 using MySqlConnector;
-using System.Configuration; //Para leer la cadena de conexión desde app.config 
+using System.Configuration;
+using System.Security.Cryptography; //Para leer la cadena de conexión desde app.config 
 
 namespace Clave5_Grupo6
 {
     public partial class frmPago : Form
-    {
+
+       
+    { 
+        //VARIABLES GLOBALES
+        private int _reservaIdActual = 0;
+        private int _habitacionIdActual=0;
+        private decimal _precioBase = 0m;
         public frmPago()
         {
             InitializeComponent();
-            cmbTipoHabitacionfrmPago.SelectedIndexChanged += ActualizarPrecios;
-            cmbTipoHotelfrmPago.SelectedIndexChanged += ActualizarPrecios;
+            // evita que editen el combobox
+            cmbReserva.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTipoPagofrmPago.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            //Metodos de pago 
+            cmbTipoPagofrmPago.Items.Clear();
+            cmbTipoPagofrmPago.Items.AddRange(new[] { "Efectivo", "Tarjeta", "Bitcoin" });
+
+            //Cuando se cambia la reserva o fechas o ingreso anticipado se actualizan los precios
+            cmbReserva.SelectedIndexChanged += (_, __) =>();
+
+
         }
 
+        private void CargarReservaYRecalcular()
+        {
+            if (cmbReserva.SelectedValue == null) return;
+            _reservaIdActual = Convert.ToInt32(cmbReserva.SelectedValue);
+            using var cn = NuevaConexion();
+            cn.Open();
+            using var cmd = new MySqlCommand(@"
+                SELECT
+                r.habitacion_id, 
+                r.fecha_entrada,
+                r.fecha_salida, 
+                r.ingreso_anticipado,
+                h.Precio_base
+                FROM tabla_reserva r
+                JOIN tabla_habitaciones h ON h.id_Habitaciones= r.habitacion_id
+                WHERE r.id_reserva= @id;", cn);
+            cmd.Parameters.AddWithValue("@id", _reservaIdActual);
+            using var rd = cmd.ExecuteReader();
 
+        }
         private void ActualizarPrecios(object sender, EventArgs e)
         {
-            string tipoHotel = cmbTipoHotelfrmPago.Text;
+            string tipoHotel = cmb.Text;
             string tipoHabitacion = cmbTipoHabitacionfrmPago.Text;
 
             Hotel hotel = ObtenerHotel(tipoHotel);
@@ -80,34 +116,61 @@ namespace Clave5_Grupo6
             var cs = ConfigurationManager.ConnectionStrings["MySqlConn"]?.ConnectionString;
             return new MySqlConnection(cs);
         }
+        int CrearReservaProvisional(int clienteId, int habitacionId, DateTime entrada, DateTime salida, bool ingresoAnt)
+        {
+            using var cn = NuevaConexion();
+            cn.Open();
+            using var cmd = new MySqlCommand(@"
+        INSERT INTO tabla_reserva
+          (cliente_id, habitacion_id, fecha_entrada, fecha_salida, ingreso_anticipado, estado)
+        VALUES
+          (@cli, @hab, @in, @out, @ing, 'PENDIENTE');
+        SELECT LAST_INSERT_ID();", cn);
+            cmd.Parameters.AddWithValue("@cli", clienteId);
+            cmd.Parameters.AddWithValue("@hab", habitacionId);
+            cmd.Parameters.AddWithValue("@in", entrada.Date);
+            cmd.Parameters.AddWithValue("@out", salida.Date);
+            cmd.Parameters.AddWithValue("@ing", ingresoAnt ? 1 : 0);
+            return Convert.ToInt32(cmd.ExecuteScalar());
+        }
+
+        // Ejemplo de navegación:
+        int idReserva = CrearReservaProvisional(clienteId, habitacionId, dtpEntrada.Value, dtpSalida.Value, chkIngresoAnt.Checked);
+        var frm = new frmPago(idReserva);
+        frm.Show();
+
         private void btnAgregarDatosPago_Click(object sender, EventArgs e)
         {
             //Se borra la cadena harcodeada 
-           // string cadenaConexion = "database=clave5_grupo6db;server=localhost;user id=root;password=Fernandomysql";
+            // string cadenaConexion = "database=clave5_grupo6db;server=localhost;user id=root;password=Fernandomysql";
+            // asumiendo: cmbReserva (ValueMember=id_reserva), cmbMetodoPago (Efectivo/Tarjeta/Bitcoin)
+            int reservaId = (int)cmbReserva.SelectedValue;
+            decimal precioBase = /* del dataset de la vista o consulta */;
+            int noches = Math.Max(1, (fechaSalida - fechaEntrada).Days);
+            decimal subtotal = precioBase * noches;
+            decimal extra = chkIngresoAnticipado.Checked ? 20m : 0m;
+            decimal iva = Math.Round(subtotal * 0.13m, 2);
+            decimal total = subtotal + iva + extra;
+
 
             try
             {
-                using (var conexionDB = NuevaConexion())
+                using (var cn = NuevaConexion())
                 {
-                    conexionDB.Open();
-
-                    // Crear un comando SQL para la inserción con parámetros
-                    string sql = "INSERT INTO tabla_pago (idTablaPago, Tipo_de_hotel, Tipo_de_Habitacion, PrecioBase, PrecioTotalconImpuestos, Formas_de_Pago, id_Habitaciones) " +
-                                 "VALUES (@idPago, @TipoHotel, @TipoHabitacion, @PrecioBase, @PrecioTotal, @FormasdePago, @idHabitacion)";
-
-                    using (MySqlCommand cmd = new MySqlCommand(sql, conexionDB))
+                    cn.Open();
+                    string sql = @"INSERT INTO pagos
+                   (reserva_id, metodo_pago, precio_base, noches, subtotal, extra_ingreso, iva, total)
+                   VALUES (@reserva_id, @metodo, @precio_base, @noches, @subtotal, @extra, @iva, @total)";
+                    using (var cmd = new MySqlCommand(sql, cn))
                     {
-                        // Agregar parámetros
-                        cmd.Parameters.AddWithValue("@idPago", txtIdPagofrmPago.Text);
-                        cmd.Parameters.AddWithValue("@TipoHotel", cmbTipoHotelfrmPago.Text);
-                        cmd.Parameters.AddWithValue("@TipoHabitacion", cmbTipoHabitacionfrmPago.Text); /*Se establece la conexion con la bd
-                                                                                                        * y se pasan los parametros para agregar la 
-                                                                                                        * info*/
-                        cmd.Parameters.AddWithValue("@PrecioBase", txtPrecioBase.Text);
-                        cmd.Parameters.AddWithValue("@PrecioTotal", txtPrecioFinalfrmPago.Text);
-                        cmd.Parameters.AddWithValue("@FormasdePago", cmbTipoPagofrmPago.Text);
-                        cmd.Parameters.AddWithValue("@idHabitacion", txtIdHabFK.Text);
-
+                        cmd.Parameters.AddWithValue("@reserva_id", reservaId);
+                        cmd.Parameters.AddWithValue("@metodo", cmbTipoPagofrmPago.Text);
+                        cmd.Parameters.AddWithValue("@precio_base", precioBase);
+                        cmd.Parameters.AddWithValue("@noches", noches);
+                        cmd.Parameters.AddWithValue("@subtotal", subtotal);
+                        cmd.Parameters.AddWithValue("@extra", extra);
+                        cmd.Parameters.AddWithValue("@iva", iva);
+                        cmd.Parameters.AddWithValue("@total", total);
                         cmd.ExecuteNonQuery();
                     }
                 }

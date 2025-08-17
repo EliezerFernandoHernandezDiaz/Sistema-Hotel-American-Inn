@@ -46,6 +46,7 @@ namespace Clave5_Grupo6
             this.label1 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.lblDisponibilidad = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTablaHabitacion)).BeginInit();
             this.SuspendLayout();
             // 
@@ -104,7 +105,7 @@ namespace Clave5_Grupo6
             // txtEquipoDisponiblefrmHab
             // 
             this.txtEquipoDisponiblefrmHab.Enabled = false;
-            this.txtEquipoDisponiblefrmHab.Location = new System.Drawing.Point(306, 351);
+            this.txtEquipoDisponiblefrmHab.Location = new System.Drawing.Point(306, 336);
             this.txtEquipoDisponiblefrmHab.Name = "txtEquipoDisponiblefrmHab";
             this.txtEquipoDisponiblefrmHab.Size = new System.Drawing.Size(251, 22);
             this.txtEquipoDisponiblefrmHab.TabIndex = 8;
@@ -130,7 +131,7 @@ namespace Clave5_Grupo6
             // 
             // btnAgregarDatosHabitacion
             // 
-            this.btnAgregarDatosHabitacion.Location = new System.Drawing.Point(234, 639);
+            this.btnAgregarDatosHabitacion.Location = new System.Drawing.Point(72, 468);
             this.btnAgregarDatosHabitacion.Name = "btnAgregarDatosHabitacion";
             this.btnAgregarDatosHabitacion.Size = new System.Drawing.Size(127, 77);
             this.btnAgregarDatosHabitacion.TabIndex = 14;
@@ -140,7 +141,7 @@ namespace Clave5_Grupo6
             // 
             // btnMostrarDatosHabitacion
             // 
-            this.btnMostrarDatosHabitacion.Location = new System.Drawing.Point(430, 639);
+            this.btnMostrarDatosHabitacion.Location = new System.Drawing.Point(278, 468);
             this.btnMostrarDatosHabitacion.Name = "btnMostrarDatosHabitacion";
             this.btnMostrarDatosHabitacion.Size = new System.Drawing.Size(127, 77);
             this.btnMostrarDatosHabitacion.TabIndex = 15;
@@ -150,7 +151,7 @@ namespace Clave5_Grupo6
             // 
             // txtLimpiarCamposHabitacion
             // 
-            this.txtLimpiarCamposHabitacion.Location = new System.Drawing.Point(72, 467);
+            this.txtLimpiarCamposHabitacion.Location = new System.Drawing.Point(1210, 656);
             this.txtLimpiarCamposHabitacion.Name = "txtLimpiarCamposHabitacion";
             this.txtLimpiarCamposHabitacion.Size = new System.Drawing.Size(116, 60);
             this.txtLimpiarCamposHabitacion.TabIndex = 16;
@@ -160,7 +161,7 @@ namespace Clave5_Grupo6
             // 
             // btnCerrarfrmDatosHab
             // 
-            this.btnCerrarfrmDatosHab.Location = new System.Drawing.Point(817, 639);
+            this.btnCerrarfrmDatosHab.Location = new System.Drawing.Point(72, 591);
             this.btnCerrarfrmDatosHab.Name = "btnCerrarfrmDatosHab";
             this.btnCerrarfrmDatosHab.Size = new System.Drawing.Size(127, 77);
             this.btnCerrarfrmDatosHab.TabIndex = 17;
@@ -180,7 +181,7 @@ namespace Clave5_Grupo6
             // 
             // btnEliminar
             // 
-            this.btnEliminar.Location = new System.Drawing.Point(1025, 639);
+            this.btnEliminar.Location = new System.Drawing.Point(278, 591);
             this.btnEliminar.Name = "btnEliminar";
             this.btnEliminar.Size = new System.Drawing.Size(118, 77);
             this.btnEliminar.TabIndex = 19;
@@ -212,11 +213,21 @@ namespace Clave5_Grupo6
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(12, 346);
+            this.label3.Location = new System.Drawing.Point(12, 336);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(195, 81);
             this.label3.TabIndex = 22;
             this.label3.Text = "Equipo Disponible\r\n\r\n\r\n";
+            // 
+            // lblDisponibilidad
+            // 
+            this.lblDisponibilidad.AutoSize = true;
+            this.lblDisponibilidad.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDisponibilidad.Location = new System.Drawing.Point(321, 431);
+            this.lblDisponibilidad.Name = "lblDisponibilidad";
+            this.lblDisponibilidad.Size = new System.Drawing.Size(12, 81);
+            this.lblDisponibilidad.TabIndex = 24;
+            this.lblDisponibilidad.Text = "\r\n\r\n\r\n";
             // 
             // frmHabitAciones
             // 
@@ -224,6 +235,7 @@ namespace Clave5_Grupo6
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(1454, 757);
+            this.Controls.Add(this.lblDisponibilidad);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label1);
@@ -268,5 +280,6 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lblDisponibilidad;
     }
 }
