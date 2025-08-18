@@ -45,22 +45,21 @@ namespace Clave5_Grupo6
             this.btnEliminar = new System.Windows.Forms.Button();
             this.cmbReserva = new System.Windows.Forms.ComboBox();
             this.gbxDetallesPago = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtNoches = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.dtpCheckInn = new System.Windows.Forms.DateTimePicker();
-            this.label3 = new System.Windows.Forms.Label();
-            this.dtpCheckOut = new System.Windows.Forms.DateTimePicker();
-            this.label8 = new System.Windows.Forms.Label();
-            this.dtpHoraCheckInn = new System.Windows.Forms.DateTimePicker();
-            this.label9 = new System.Windows.Forms.Label();
-            this.dtpHoraCheckOut = new System.Windows.Forms.DateTimePicker();
-            this.label10 = new System.Windows.Forms.Label();
-            this.lblIngresoAnticipado = new System.Windows.Forms.Label();
-            this.chkIngresoAnticipado = new System.Windows.Forms.CheckBox();
-            this.lblDisponibilidad = new System.Windows.Forms.Label();
-            this.lblDisponible = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
+            this.lblDisponible = new System.Windows.Forms.Label();
+            this.lblDisponibilidad = new System.Windows.Forms.Label();
+            this.chkIngresoAnticipado = new System.Windows.Forms.CheckBox();
+            this.lblIngresoAnticipado = new System.Windows.Forms.Label();
+            this.dtpHoraCheckOut = new System.Windows.Forms.DateTimePicker();
+            this.label9 = new System.Windows.Forms.Label();
+            this.dtpHoraCheckInn = new System.Windows.Forms.DateTimePicker();
+            this.label8 = new System.Windows.Forms.Label();
+            this.dtpCheckOut = new System.Windows.Forms.DateTimePicker();
+            this.label3 = new System.Windows.Forms.Label();
+            this.dtpCheckInn = new System.Windows.Forms.DateTimePicker();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtNoches = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMostrarTablaPago)).BeginInit();
             this.gbxDetallesPago.SuspendLayout();
             this.SuspendLayout();
@@ -81,24 +80,26 @@ namespace Clave5_Grupo6
             this.txtPrecioBase.Name = "txtPrecioBase";
             this.txtPrecioBase.Size = new System.Drawing.Size(171, 27);
             this.txtPrecioBase.TabIndex = 20;
+            this.txtPrecioBase.TextChanged += new System.EventHandler(this.txtPrecioBase_TextChanged);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Enabled = false;
-            this.label5.Location = new System.Drawing.Point(307, 584);
+            this.label5.Location = new System.Drawing.Point(6, 594);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(175, 20);
+            this.label5.Size = new System.Drawing.Size(283, 20);
             this.label5.TabIndex = 21;
-            this.label5.Text = "Precio total a pagar";
+            this.label5.Text = "Precio total a pagar + IVA (13%)\r\n";
             // 
             // txtPrecioFinalfrmPago
             // 
             this.txtPrecioFinalfrmPago.Enabled = false;
-            this.txtPrecioFinalfrmPago.Location = new System.Drawing.Point(280, 120);
+            this.txtPrecioFinalfrmPago.Location = new System.Drawing.Point(403, 586);
             this.txtPrecioFinalfrmPago.Name = "txtPrecioFinalfrmPago";
-            this.txtPrecioFinalfrmPago.Size = new System.Drawing.Size(115, 27);
+            this.txtPrecioFinalfrmPago.Size = new System.Drawing.Size(223, 27);
             this.txtPrecioFinalfrmPago.TabIndex = 22;
+            this.txtPrecioFinalfrmPago.TextChanged += new System.EventHandler(this.txtPrecioFinalfrmPago_TextChanged);
             // 
             // dgvMostrarTablaPago
             // 
@@ -166,7 +167,7 @@ namespace Clave5_Grupo6
             "Efectivo ",
             "Tarjeta de crédito ",
             "Bitcoin"});
-            this.cmbTipoPagofrmPago.Location = new System.Drawing.Point(280, 51);
+            this.cmbTipoPagofrmPago.Location = new System.Drawing.Point(368, 42);
             this.cmbTipoPagofrmPago.Name = "cmbTipoPagofrmPago";
             this.cmbTipoPagofrmPago.Size = new System.Drawing.Size(212, 28);
             this.cmbTipoPagofrmPago.TabIndex = 30;
@@ -203,7 +204,7 @@ namespace Clave5_Grupo6
             // cmbReserva
             // 
             this.cmbReserva.FormattingEnabled = true;
-            this.cmbReserva.Location = new System.Drawing.Point(235, 46);
+            this.cmbReserva.Location = new System.Drawing.Point(346, 46);
             this.cmbReserva.Name = "cmbReserva";
             this.cmbReserva.Size = new System.Drawing.Size(172, 24);
             this.cmbReserva.TabIndex = 35;
@@ -215,23 +216,22 @@ namespace Clave5_Grupo6
             this.gbxDetallesPago.Controls.Add(this.lblDisponibilidad);
             this.gbxDetallesPago.Controls.Add(this.chkIngresoAnticipado);
             this.gbxDetallesPago.Controls.Add(this.lblIngresoAnticipado);
-            this.gbxDetallesPago.Controls.Add(this.label10);
             this.gbxDetallesPago.Controls.Add(this.dtpHoraCheckOut);
             this.gbxDetallesPago.Controls.Add(this.label9);
             this.gbxDetallesPago.Controls.Add(this.dtpHoraCheckInn);
             this.gbxDetallesPago.Controls.Add(this.label8);
             this.gbxDetallesPago.Controls.Add(this.dtpCheckOut);
+            this.gbxDetallesPago.Controls.Add(this.txtPrecioFinalfrmPago);
+            this.gbxDetallesPago.Controls.Add(this.label1);
             this.gbxDetallesPago.Controls.Add(this.label3);
             this.gbxDetallesPago.Controls.Add(this.dtpCheckInn);
             this.gbxDetallesPago.Controls.Add(this.label2);
             this.gbxDetallesPago.Controls.Add(this.txtNoches);
-            this.gbxDetallesPago.Controls.Add(this.label1);
             this.gbxDetallesPago.Controls.Add(this.label7);
             this.gbxDetallesPago.Controls.Add(this.cmbTipoPagofrmPago);
             this.gbxDetallesPago.Controls.Add(this.label4);
             this.gbxDetallesPago.Controls.Add(this.txtPrecioBase);
             this.gbxDetallesPago.Controls.Add(this.label5);
-            this.gbxDetallesPago.Controls.Add(this.txtPrecioFinalfrmPago);
             this.gbxDetallesPago.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbxDetallesPago.ForeColor = System.Drawing.Color.Black;
             this.gbxDetallesPago.Location = new System.Drawing.Point(12, 108);
@@ -240,108 +240,34 @@ namespace Clave5_Grupo6
             this.gbxDetallesPago.TabIndex = 36;
             this.gbxDetallesPago.TabStop = false;
             this.gbxDetallesPago.Text = "Detalles del Pago";
+            this.gbxDetallesPago.Enter += new System.EventHandler(this.gbxDetallesPago_Enter);
             // 
-            // label1
+            // label11
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 123);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(261, 20);
-            this.label1.TabIndex = 32;
-            this.label1.Text = "Ingresar noches de hospedaje";
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(6, 387);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(128, 20);
+            this.label11.TabIndex = 48;
+            this.label11.Text = "Disponibilidad\r\n";
             // 
-            // txtNoches
+            // lblDisponible
             // 
-            this.txtNoches.Location = new System.Drawing.Point(488, 581);
-            this.txtNoches.Name = "txtNoches";
-            this.txtNoches.Size = new System.Drawing.Size(178, 27);
-            this.txtNoches.TabIndex = 33;
+            this.lblDisponible.AutoSize = true;
+            this.lblDisponible.Location = new System.Drawing.Point(267, 387);
+            this.lblDisponible.Name = "lblDisponible";
+            this.lblDisponible.Size = new System.Drawing.Size(128, 20);
+            this.lblDisponible.TabIndex = 47;
+            this.lblDisponible.Text = "Disponibilidad\r\n";
+            this.lblDisponible.Click += new System.EventHandler(this.lblDisponible_Click);
             // 
-            // label2
+            // lblDisponibilidad
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(19, 187);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(161, 20);
-            this.label2.TabIndex = 34;
-            this.label2.Text = "Fecha de entrada:\r\n";
-            // 
-            // dtpCheckInn
-            // 
-            this.dtpCheckInn.Location = new System.Drawing.Point(223, 187);
-            this.dtpCheckInn.Name = "dtpCheckInn";
-            this.dtpCheckInn.Size = new System.Drawing.Size(200, 27);
-            this.dtpCheckInn.TabIndex = 35;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 249);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(148, 40);
-            this.label3.TabIndex = 36;
-            this.label3.Text = "Fecha de salida:\r\n\r\n";
-            // 
-            // dtpCheckOut
-            // 
-            this.dtpCheckOut.Location = new System.Drawing.Point(223, 249);
-            this.dtpCheckOut.Name = "dtpCheckOut";
-            this.dtpCheckOut.Size = new System.Drawing.Size(200, 27);
-            this.dtpCheckOut.TabIndex = 37;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 448);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(119, 60);
-            this.label8.TabIndex = 38;
-            this.label8.Text = "Hora entrada\r\n\r\n\r\n";
-            // 
-            // dtpHoraCheckInn
-            // 
-            this.dtpHoraCheckInn.CustomFormat = "\"HH:mm\"";
-            this.dtpHoraCheckInn.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpHoraCheckInn.Location = new System.Drawing.Point(131, 448);
-            this.dtpHoraCheckInn.Name = "dtpHoraCheckInn";
-            this.dtpHoraCheckInn.Size = new System.Drawing.Size(170, 27);
-            this.dtpHoraCheckInn.TabIndex = 39;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(307, 448);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(106, 20);
-            this.label9.TabIndex = 41;
-            this.label9.Text = "Hora salida";
-            // 
-            // dtpHoraCheckOut
-            // 
-            this.dtpHoraCheckOut.CustomFormat = "\"HH:mm\"";
-            this.dtpHoraCheckOut.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpHoraCheckOut.Location = new System.Drawing.Point(434, 448);
-            this.dtpHoraCheckOut.Name = "dtpHoraCheckOut";
-            this.dtpHoraCheckOut.Size = new System.Drawing.Size(170, 27);
-            this.dtpHoraCheckOut.TabIndex = 42;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(35, 187);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(119, 60);
-            this.label10.TabIndex = 43;
-            this.label10.Text = "Hora entrada\r\n\r\n\r\n";
-            // 
-            // lblIngresoAnticipado
-            // 
-            this.lblIngresoAnticipado.AutoSize = true;
-            this.lblIngresoAnticipado.Location = new System.Drawing.Point(6, 326);
-            this.lblIngresoAnticipado.Name = "lblIngresoAnticipado";
-            this.lblIngresoAnticipado.Size = new System.Drawing.Size(241, 20);
-            this.lblIngresoAnticipado.TabIndex = 44;
-            this.lblIngresoAnticipado.Text = "Realizar Ingreso Anticipado";
+            this.lblDisponibilidad.AutoSize = true;
+            this.lblDisponibilidad.Location = new System.Drawing.Point(6, 387);
+            this.lblDisponibilidad.Name = "lblDisponibilidad";
+            this.lblDisponibilidad.Size = new System.Drawing.Size(0, 20);
+            this.lblDisponibilidad.TabIndex = 46;
             // 
             // chkIngresoAnticipado
             // 
@@ -352,32 +278,100 @@ namespace Clave5_Grupo6
             this.chkIngresoAnticipado.TabIndex = 45;
             this.chkIngresoAnticipado.Text = "Sí";
             this.chkIngresoAnticipado.UseVisualStyleBackColor = true;
+            this.chkIngresoAnticipado.CheckedChanged += new System.EventHandler(this.chkIngresoAnticipado_CheckedChanged);
             // 
-            // lblDisponibilidad
+            // lblIngresoAnticipado
             // 
-            this.lblDisponibilidad.AutoSize = true;
-            this.lblDisponibilidad.Location = new System.Drawing.Point(6, 387);
-            this.lblDisponibilidad.Name = "lblDisponibilidad";
-            this.lblDisponibilidad.Size = new System.Drawing.Size(0, 20);
-            this.lblDisponibilidad.TabIndex = 46;
+            this.lblIngresoAnticipado.AutoSize = true;
+            this.lblIngresoAnticipado.Location = new System.Drawing.Point(6, 326);
+            this.lblIngresoAnticipado.Name = "lblIngresoAnticipado";
+            this.lblIngresoAnticipado.Size = new System.Drawing.Size(241, 20);
+            this.lblIngresoAnticipado.TabIndex = 44;
+            this.lblIngresoAnticipado.Text = "Realizar Ingreso Anticipado";
             // 
-            // lblDisponible
+            // dtpHoraCheckOut
             // 
-            this.lblDisponible.AutoSize = true;
-            this.lblDisponible.Location = new System.Drawing.Point(267, 387);
-            this.lblDisponible.Name = "lblDisponible";
-            this.lblDisponible.Size = new System.Drawing.Size(128, 20);
-            this.lblDisponible.TabIndex = 47;
-            this.lblDisponible.Text = "Disponibilidad\r\n";
+            this.dtpHoraCheckOut.CustomFormat = "\"HH:mm\"";
+            this.dtpHoraCheckOut.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpHoraCheckOut.Location = new System.Drawing.Point(488, 448);
+            this.dtpHoraCheckOut.Name = "dtpHoraCheckOut";
+            this.dtpHoraCheckOut.Size = new System.Drawing.Size(170, 27);
+            this.dtpHoraCheckOut.TabIndex = 42;
             // 
-            // label11
+            // label9
             // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(6, 387);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(128, 20);
-            this.label11.TabIndex = 48;
-            this.label11.Text = "Disponibilidad\r\n";
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(364, 453);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(106, 20);
+            this.label9.TabIndex = 41;
+            this.label9.Text = "Hora salida";
+            // 
+            // dtpHoraCheckInn
+            // 
+            this.dtpHoraCheckInn.CustomFormat = "\"HH:mm\"";
+            this.dtpHoraCheckInn.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpHoraCheckInn.Location = new System.Drawing.Point(148, 448);
+            this.dtpHoraCheckInn.Name = "dtpHoraCheckInn";
+            this.dtpHoraCheckInn.Size = new System.Drawing.Size(170, 27);
+            this.dtpHoraCheckInn.TabIndex = 39;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 448);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(119, 60);
+            this.label8.TabIndex = 38;
+            this.label8.Text = "Hora entrada\r\n\r\n\r\n";
+            // 
+            // dtpCheckOut
+            // 
+            this.dtpCheckOut.Location = new System.Drawing.Point(368, 198);
+            this.dtpCheckOut.Name = "dtpCheckOut";
+            this.dtpCheckOut.Size = new System.Drawing.Size(200, 27);
+            this.dtpCheckOut.TabIndex = 37;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 198);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(148, 40);
+            this.label3.TabIndex = 36;
+            this.label3.Text = "Fecha de salida:\r\n\r\n";
+            // 
+            // dtpCheckInn
+            // 
+            this.dtpCheckInn.Location = new System.Drawing.Point(368, 118);
+            this.dtpCheckInn.Name = "dtpCheckInn";
+            this.dtpCheckInn.Size = new System.Drawing.Size(200, 27);
+            this.dtpCheckInn.TabIndex = 35;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 123);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(161, 20);
+            this.label2.TabIndex = 34;
+            this.label2.Text = "Fecha de entrada:\r\n";
+            // 
+            // txtNoches
+            // 
+            this.txtNoches.Location = new System.Drawing.Point(368, 269);
+            this.txtNoches.Name = "txtNoches";
+            this.txtNoches.Size = new System.Drawing.Size(200, 27);
+            this.txtNoches.TabIndex = 33;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 269);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(189, 20);
+            this.label1.TabIndex = 32;
+            this.label1.Text = "Noches de hospedaje\r\n";
             // 
             // frmPago
             // 
@@ -433,7 +427,6 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.DateTimePicker dtpCheckInn;
         private System.Windows.Forms.Label lblIngresoAnticipado;
-        private System.Windows.Forms.Label label10;
         private System.Windows.Forms.DateTimePicker dtpHoraCheckOut;
         private System.Windows.Forms.Label lblDisponibilidad;
         private System.Windows.Forms.CheckBox chkIngresoAnticipado;

@@ -43,7 +43,7 @@ namespace Clave5_Grupo6
             this.label14 = new System.Windows.Forms.Label();
             this.dgvReservas = new System.Windows.Forms.DataGridView();
             this.btnEliminarReserva = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.btnSalir = new System.Windows.Forms.Button();
             this.label17 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.btnMostrarReservas = new System.Windows.Forms.Button();
@@ -60,16 +60,17 @@ namespace Clave5_Grupo6
             this.label20 = new System.Windows.Forms.Label();
             this.btnModificar = new System.Windows.Forms.Button();
             this.btnBuscar = new System.Windows.Forms.Button();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.cmbSeleccionarHuesped = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.txtHabitacionSeleccionada = new System.Windows.Forms.TextBox();
             this.txtMetPagoSeleccionado = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.gbxReservaInfo = new System.Windows.Forms.GroupBox();
-            this.dtpCheckInn = new System.Windows.Forms.DateTimePicker();
             this.dtpCheckOut = new System.Windows.Forms.DateTimePicker();
+            this.dtpCheckInn = new System.Windows.Forms.DateTimePicker();
             this.label2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.txtBuscarReserva = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReservas)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -216,17 +217,18 @@ namespace Clave5_Grupo6
             this.btnEliminarReserva.TabIndex = 34;
             this.btnEliminarReserva.Text = "Eliminar";
             this.btnEliminarReserva.UseVisualStyleBackColor = true;
+            this.btnEliminarReserva.Click += new System.EventHandler(this.btnEliminarReserva_Click);
             // 
-            // button3
+            // btnSalir
             // 
-            this.button3.Location = new System.Drawing.Point(1345, 27);
-            this.button3.Margin = new System.Windows.Forms.Padding(4);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(100, 42);
-            this.button3.TabIndex = 35;
-            this.button3.Text = "Salir";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.btnSalir.Location = new System.Drawing.Point(1345, 27);
+            this.btnSalir.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSalir.Name = "btnSalir";
+            this.btnSalir.Size = new System.Drawing.Size(100, 42);
+            this.btnSalir.TabIndex = 35;
+            this.btnSalir.Text = "Salir";
+            this.btnSalir.UseVisualStyleBackColor = true;
+            this.btnSalir.Click += new System.EventHandler(this.button3_Click);
             // 
             // label17
             // 
@@ -365,6 +367,7 @@ namespace Clave5_Grupo6
             this.btnModificar.TabIndex = 62;
             this.btnModificar.Text = "Modificar";
             this.btnModificar.UseVisualStyleBackColor = true;
+            this.btnModificar.Click += new System.EventHandler(this.btnModificar_Click);
             // 
             // btnBuscar
             // 
@@ -374,20 +377,21 @@ namespace Clave5_Grupo6
             this.btnBuscar.TabIndex = 63;
             this.btnBuscar.Text = "Buscar Reserva";
             this.btnBuscar.UseVisualStyleBackColor = true;
+            this.btnBuscar.Click += new System.EventHandler(this.btnBuscar_Click);
             // 
-            // comboBox1
+            // cmbSeleccionarHuesped
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.cmbSeleccionarHuesped.FormattingEnabled = true;
+            this.cmbSeleccionarHuesped.Items.AddRange(new object[] {
             "Efectivo",
             "Tarjeta de credito",
             "Tarjeta de debito",
             "Bitcoin"});
-            this.comboBox1.Location = new System.Drawing.Point(201, 93);
-            this.comboBox1.Margin = new System.Windows.Forms.Padding(4);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(223, 24);
-            this.comboBox1.TabIndex = 65;
+            this.cmbSeleccionarHuesped.Location = new System.Drawing.Point(201, 93);
+            this.cmbSeleccionarHuesped.Margin = new System.Windows.Forms.Padding(4);
+            this.cmbSeleccionarHuesped.Name = "cmbSeleccionarHuesped";
+            this.cmbSeleccionarHuesped.Size = new System.Drawing.Size(223, 24);
+            this.cmbSeleccionarHuesped.TabIndex = 65;
             // 
             // label1
             // 
@@ -457,15 +461,6 @@ namespace Clave5_Grupo6
             this.gbxReservaInfo.TabStop = false;
             this.gbxReservaInfo.Text = "Información de la Reserva";
             // 
-            // dtpCheckInn
-            // 
-            this.dtpCheckInn.CustomFormat = "\"HH:mm\"";
-            this.dtpCheckInn.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtpCheckInn.Location = new System.Drawing.Point(160, 168);
-            this.dtpCheckInn.Name = "dtpCheckInn";
-            this.dtpCheckInn.Size = new System.Drawing.Size(200, 22);
-            this.dtpCheckInn.TabIndex = 61;
-            // 
             // dtpCheckOut
             // 
             this.dtpCheckOut.CustomFormat = "\"HH:mm\"";
@@ -474,6 +469,15 @@ namespace Clave5_Grupo6
             this.dtpCheckOut.Name = "dtpCheckOut";
             this.dtpCheckOut.Size = new System.Drawing.Size(200, 22);
             this.dtpCheckOut.TabIndex = 62;
+            // 
+            // dtpCheckInn
+            // 
+            this.dtpCheckInn.CustomFormat = "\"HH:mm\"";
+            this.dtpCheckInn.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtpCheckInn.Location = new System.Drawing.Point(160, 168);
+            this.dtpCheckInn.Name = "dtpCheckInn";
+            this.dtpCheckInn.Size = new System.Drawing.Size(200, 22);
+            this.dtpCheckInn.TabIndex = 61;
             // 
             // label2
             // 
@@ -495,18 +499,27 @@ namespace Clave5_Grupo6
             this.label4.TabIndex = 71;
             this.label4.Text = "Información de los huespedes";
             // 
+            // txtBuscarReserva
+            // 
+            this.txtBuscarReserva.Enabled = false;
+            this.txtBuscarReserva.Location = new System.Drawing.Point(1364, 144);
+            this.txtBuscarReserva.Name = "txtBuscarReserva";
+            this.txtBuscarReserva.Size = new System.Drawing.Size(186, 22);
+            this.txtBuscarReserva.TabIndex = 69;
+            // 
             // frmReserva
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(1781, 809);
+            this.Controls.Add(this.txtBuscarReserva);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.gbxReservaInfo);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.cmbSeleccionarHuesped);
             this.Controls.Add(this.btnBuscar);
             this.Controls.Add(this.btnModificar);
             this.Controls.Add(this.label20);
@@ -514,7 +527,7 @@ namespace Clave5_Grupo6
             this.Controls.Add(this.btnMostrarReservas);
             this.Controls.Add(this.label18);
             this.Controls.Add(this.label17);
-            this.Controls.Add(this.button3);
+            this.Controls.Add(this.btnSalir);
             this.Controls.Add(this.btnEliminarReserva);
             this.Controls.Add(this.dgvReservas);
             this.Controls.Add(this.groupBox1);
@@ -547,7 +560,7 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.DataGridView dgvReservas;
         private System.Windows.Forms.Button btnEliminarReserva;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button btnSalir;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Button btnMostrarReservas;
@@ -566,7 +579,7 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Button btnModificar;
         private System.Windows.Forms.Button btnBuscar;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox cmbSeleccionarHuesped;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtHabitacionSeleccionada;
         private System.Windows.Forms.TextBox txtMetPagoSeleccionado;
@@ -576,6 +589,7 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.DateTimePicker dtpCheckInn;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txtBuscarReserva;
     }
 }
 

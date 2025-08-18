@@ -70,6 +70,19 @@ namespace Clave5_Grupo6
             this.Close();
         }
 
+        private void CargarClientesCombo()
+        {
+            using var cn = NuevaConexion();
+            using var da = new MySqlDataAdapter("SELECT id, CONCAT(nombre, ' ', apellidos) AS NombreCompleto FROM cliente", cn);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+
+            cmbCliente.DataSource = dt;
+            cmbCliente.ValueMember = "id";
+            cmbCliente.DisplayMember = "NombreCompleto";
+            cmbCliente.SelectedIndex = -1;
+        }
+
         private void btnAgregarDatosHabitacion_Click(object sender, EventArgs e)
         {
             //se elimina la cadena harcodeada y se usa app.config mediante nuevaConexion()
@@ -156,8 +169,60 @@ namespace Clave5_Grupo6
 
         private void btnIrATablaPago_Click(object sender, EventArgs e) //Comando para abrir el formulario que va a mostrar la tabla pago 
         {
-            frmPago frm = new frmPago();
+            if (cmbCliente.SelectedValue == null)
+            {
+                MessageBox.Show("Seleccione primero un cliente.");
+                return;
+            }
+            if (dgvTablaHabitacion.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Seleccione una habitación.");
+                return;
+            }
+
+            int habitacionId = Convert.ToInt32(dgvTablaHabitacion.SelectedRows[0].Cells["id_Habitaciones"].Value);
+            int clienteId = Convert.ToInt32(cmbCliente.SelectedValue);
+
+            frmPago frm = new frmPago(habitacionId, clienteId);
             frm.Show();
+        }
+
+        private int? ObtenerHabitacionIdSeleccionada()
+        {
+            // 1) Si hay fila actual
+            if (dgvTablaHabitacion.CurrentRow != null)
+            {
+                var cell = dgvTablaHabitacion.CurrentRow.Cells["id_Habitaciones"];
+                if (cell != null && cell.Value != null && cell.Value != DBNull.Value)
+                    return Convert.ToInt32(cell.Value);
+            }
+
+            // 2) Si hay filas seleccionadas (por si usas FullRowSelect)
+            if (dgvTablaHabitacion.SelectedRows.Count > 0)
+            {
+                var cell = dgvTablaHabitacion.SelectedRows[0].Cells["id_Habitaciones"];
+                if (cell != null && cell.Value != null && cell.Value != DBNull.Value)
+                    return Convert.ToInt32(cell.Value);
+            }
+
+            // 3) Si solo hay una celda seleccionada
+            if (dgvTablaHabitacion.SelectedCells.Count > 0)
+            {
+                var row = dgvTablaHabitacion.SelectedCells[0].OwningRow;
+                var cell = row.Cells["id_Habitaciones"];
+                if (cell != null && cell.Value != null && cell.Value != DBNull.Value)
+                    return Convert.ToInt32(cell.Value);
+            }
+
+            // 4) Si el grid está enlazado a DataTable y el nombre de columna variara,
+            //    intenta obtener el valor por DataBoundItem (fallback)
+            if (dgvTablaHabitacion.CurrentRow?.DataBoundItem is DataRowView drv)
+            {
+                if (drv.Row.Table.Columns.Contains("id_Habitaciones"))
+                    return Convert.ToInt32(drv["id_Habitaciones"]);
+            }
+
+            return null;
         }
 
         private void txtLimpiarCamposHabitacion_Click(object sender, EventArgs e)
@@ -255,10 +320,17 @@ namespace Clave5_Grupo6
 
         private void frmHabitAciones_Load(object sender, EventArgs e)
         {
+            dgvTablaHabitacion.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvTablaHabitacion.MultiSelect = false;
+            dgvTablaHabitacion.ReadOnly = true;
+            CargarClientesCombo(); // carga los clientes ya guardados en la bd, al combo 
 
         }
 
-    
+        private void dgvTablaHabitacion_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
+    }
     }
 

@@ -33,6 +33,7 @@ namespace PRUEBAPROYECTO
         }
 
         private void btnEntrarLog_Click(object sender, EventArgs e)
+
         {
             try
             {
