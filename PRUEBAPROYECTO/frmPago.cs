@@ -13,6 +13,8 @@ namespace Clave5_Grupo6
         private readonly int _habitacionId;
         private decimal _precioBase = 0m;
         private readonly int _clienteId;
+        private string _clienteNombre;
+        private int _hotelId;
 
         public frmPago(int habitacionId, int clienteId)
         {
@@ -21,7 +23,6 @@ namespace Clave5_Grupo6
             _clienteId = clienteId;
 
             // Combos
-            cmbReserva.DropDownStyle = ComboBoxStyle.DropDownList;      // aquí se cargarán CLIENTES
             cmbTipoPagofrmPago.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTipoPagofrmPago.Items.Clear();
             cmbTipoPagofrmPago.Items.AddRange(new[] { "Efectivo", "Tarjeta", "Bitcoin" });
@@ -29,7 +30,7 @@ namespace Clave5_Grupo6
             // Campos calculados
             txtNoches.ReadOnly = true;
 
-            // Recalcular automáticamente
+            // Eventos para Recalcular automáticamente
             dtpCheckInn.ValueChanged += (_, __) => RecalcularMontos();
             dtpCheckOut.ValueChanged += (_, __) => RecalcularMontos();
             chkIngresoAnticipado.CheckedChanged += (_, __) => RecalcularMontos();
@@ -45,32 +46,82 @@ namespace Clave5_Grupo6
         // ============ Load ============
         private void frmPago_Load(object sender, EventArgs e)
         {
-            CargarClientesEnCombo();
+            CargarClienteActual();
             CargarPrecioBaseHabitacion();
+            // ✅ Valores iniciales de check-in y check-out
+            dtpHoraCheckInn.Format = DateTimePickerFormat.Time;
+            dtpHoraCheckInn.ShowUpDown = true;
+            dtpHoraCheckInn.Value = DateTime.Today.AddHours(16); // 16:00
+
+            dtpHoraCheckOut.Format = DateTimePickerFormat.Time;
+            dtpHoraCheckOut.ShowUpDown = true;
+            dtpHoraCheckOut.Value = DateTime.Today.AddHours(14).AddDays(1); // siguiente día 14:00
+
+            //para que no se pueda editar las horas en caso de que no se ingrese anticipadamente
+            if (!chkIngresoAnticipado.Checked)
+            {
+                dtpHoraCheckInn.Enabled = false;
+                dtpHoraCheckOut.Enabled = false;
+            }
+
+
             RecalcularMontos();
+
         }
 
-        // Cargar CLIENTES en cmbReserva (id + texto legible)
-        private void CargarClientesEnCombo()
+        // Cargar huesped en el label 
+        private void CargarClienteActual()
         {
             using var cn = NuevaConexion();
-            using var da = new MySqlDataAdapter(@"
-                SELECT id, CONCAT(dui, ' - ', nombre, ' ', apellidos) AS display
-                FROM cliente
-                ORDER BY nombre, apellidos;", cn);
+            cn.Open();
 
-            var dt = new DataTable();
-            da.Fill(dt);
+            var sql = @"
+        SELECT 
+            CONCAT(
+                c.dui, ' - ', c.nombre, ' ', c.apellidos,
+                ' | ', h.Tipo_de_hotel,
+                ' | ', h.Tipo_de_Habitacion,
+                ' | Código: ', h.codigo_habitacion
+            ) AS TextoCliente,
+            h.hotel_id,
+            h.id_Habitaciones,
+            h.codigo_habitacion,
+            h.Tipo_de_hotel,
+            h.Tipo_de_Habitacion
+        FROM cliente c
+        JOIN tabla_habitaciones h ON h.id_Habitaciones = @hab
+        WHERE c.id = @cli;";
 
-            cmbReserva.DataSource = dt;
-            cmbReserva.ValueMember = "id";        // <-- id del cliente
-            cmbReserva.DisplayMember = "display";
+            using var cmd = new MySqlCommand(sql, cn);
+            cmd.Parameters.AddWithValue("@cli", _clienteId);
+            cmd.Parameters.AddWithValue("@hab", _habitacionId);
 
-            cmbReserva.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbReserva.AutoCompleteMode = AutoCompleteMode.None;
-            cmbReserva.AutoCompleteSource = AutoCompleteSource.None;
+            using var rd = cmd.ExecuteReader();
+            if (rd.Read())
+            {
+                var textoCliente = rd["TextoCliente"].ToString();
 
+                // *** MANEJO CORRECTO DE VALORES NULL ***
+                var hotelIdValue = rd["hotel_id"];
+                if (hotelIdValue == null || hotelIdValue == DBNull.Value)
+                {
+                    // Si hotel_id es NULL, usar un valor por defecto o el mismo ID de habitación
+                    _hotelId = _habitacionId; // O usar 0, o cualquier valor por defecto
+                    Console.WriteLine($"WARNING: hotel_id es NULL para habitación {_habitacionId}, usando habitación ID como fallback");
+                }
+                else
+                {
+                    _hotelId = Convert.ToInt32(hotelIdValue);
+                }
+
+                lblNombreCliente.Text = "Cliente: " + textoCliente;
+            }
+            else
+            {
+                MessageBox.Show("No se encontraron datos con los IDs proporcionados", "Error - Sin datos");
+            }
         }
+
 
         // Leer precio base de la habitación y pintarlo
         private void CargarPrecioBaseHabitacion()
@@ -90,8 +141,8 @@ namespace Clave5_Grupo6
         // ============ Cálculos ============
         private void RecalcularMontos()
         {
-            var entrada = dtpCheckInn.Value.Date;
-            var salida = dtpCheckOut.Value.Date;
+            DateTime entrada = dtpCheckInn.Value;
+            DateTime salida = dtpCheckOut.Value;
 
             if (salida <= entrada)
             {
@@ -101,7 +152,8 @@ namespace Clave5_Grupo6
                 return;
             }
 
-            int noches = Math.Max(1, (salida - entrada).Days);
+            int noches = (int)(salida.Date - entrada.Date).TotalDays;
+            if (noches < 1) noches = 1;
             txtNoches.Text = noches.ToString();
 
             decimal subtotal = _precioBase * noches;
@@ -110,37 +162,39 @@ namespace Clave5_Grupo6
             decimal iva = Math.Round(imponible * 0.13m, 2);
             decimal total = imponible + iva;
 
+            txtPrecioBase.Text = subtotal.ToString("C2", CultureInfo.CurrentCulture);
             txtPrecioFinalfrmPago.Text = total.ToString("C2", CultureInfo.CurrentCulture);
-            //Actualiza la disponibilidad
-            lblDisponibilidad.Text = EstaDisponible(_habitacionId, entrada, salida) ? "Disponible" : "Ocupada";
+
+            // disponibilidad solo de esa habitación
+            lblDisponibilidad.Text = EstaDisponible(_habitacionId, _hotelId,entrada, salida)
+                ? "Disponible"
+                : "Ocupada";
         }
 
-        // Disponibilidad simple: no solapa fechas con otras reservas de la misma habitación
-        private bool EstaDisponible(int habitacionId, DateTime entrada, DateTime salida)
+        // Validación de disponibilidad por habitación
+        private bool EstaDisponible(int habitacionId, int hotelId, DateTime entrada, DateTime salida)
         {
             using var cn = NuevaConexion();
             cn.Open();
             var sql = @"
-                SELECT COUNT(*)
-                FROM tabla_reserva
-                WHERE habitacion_id = @hab
-                  AND NOT (fecha_salida <= @in OR fecha_entrada >= @out);";
+        SELECT COUNT(*)
+        FROM tabla_reserva r
+        JOIN tabla_habitaciones h ON r.habitacion_id = h.id_Habitaciones
+        WHERE r.habitacion_id = @hab
+          AND h.hotel_id = @hotel
+          AND NOT (r.fecha_salida <= @in OR r.fecha_entrada >= @out);";
             using var cmd = new MySqlCommand(sql, cn);
             cmd.Parameters.AddWithValue("@hab", habitacionId);
+            cmd.Parameters.AddWithValue("@hotel", hotelId);
             cmd.Parameters.AddWithValue("@in", entrada.Date);
             cmd.Parameters.AddWithValue("@out", salida.Date);
             return Convert.ToInt32(cmd.ExecuteScalar()) == 0;
         }
 
+
         // ============ Acciones ============
         private void btnAgregarDatosPago_Click(object sender, EventArgs e)
         {
-            // Validaciones mínimas
-            if (cmbReserva.SelectedValue == null)
-            {
-                MessageBox.Show("Seleccione el cliente.");
-                return;
-            }
             if (cmbTipoPagofrmPago.SelectedItem == null)
             {
                 MessageBox.Show("Seleccione el método de pago.");
@@ -155,11 +209,12 @@ namespace Clave5_Grupo6
                 MessageBox.Show("La fecha de salida debe ser posterior a la de entrada.");
                 return;
             }
-            if (!EstaDisponible(_habitacionId, entrada, salida))
+            if (!EstaDisponible(_habitacionId, _hotelId, entrada, salida))
             {
                 MessageBox.Show("La habitación no está disponible en ese rango.");
                 return;
             }
+
 
             int noches = int.Parse(txtNoches.Text);
             decimal subtotal = _precioBase * noches;
@@ -174,16 +229,16 @@ namespace Clave5_Grupo6
                 cn.Open();
                 using var tx = cn.BeginTransaction();
 
-                // 1) Crear la reserva (pendiente); se puede confirmar luego en frmReserva
+                // 1) Crear la reserva
                 int reservaId;
                 using (var insR = new MySqlCommand(@"
-                    INSERT INTO tabla_reserva
-                      (cliente_id, habitacion_id, fecha_entrada, fecha_salida, ingreso_anticipado, estado)
-                    VALUES
-                      (@cli, @hab, @in, @out, @ant, 'PENDIENTE');
-                    SELECT LAST_INSERT_ID();", cn, tx))
+            INSERT INTO tabla_reserva
+              (cliente_id, habitacion_id, fecha_entrada, fecha_salida, ingreso_anticipado, estado)
+            VALUES
+              (@cli, @hab, @in, @out, @ant, 'PENDIENTE');
+            SELECT LAST_INSERT_ID();", cn, tx))
                 {
-                    insR.Parameters.AddWithValue("@cli", (int)cmbReserva.SelectedValue); // id cliente
+                    insR.Parameters.AddWithValue("@cli", _clienteId);
                     insR.Parameters.AddWithValue("@hab", _habitacionId);
                     insR.Parameters.AddWithValue("@in", entrada);
                     insR.Parameters.AddWithValue("@out", salida);
@@ -193,10 +248,10 @@ namespace Clave5_Grupo6
 
                 // 2) Insertar el pago
                 using (var insP = new MySqlCommand(@"
-                    INSERT INTO pagos
-                      (reserva_id, metodo_pago, precio_base, noches, subtotal, extra_ingreso, iva, total)
-                    VALUES
-                      (@res, @met, @base, @noches, @sub, @extra, @iva, @tot);", cn, tx))
+            INSERT INTO pagos
+              (reserva_id, metodo_pago, precio_base, noches, subtotal, extra_ingreso, iva, total)
+            VALUES
+              (@res, @met, @base, @noches, @sub, @extra, @iva, @tot);", cn, tx))
                 {
                     insP.Parameters.AddWithValue("@res", reservaId);
                     insP.Parameters.AddWithValue("@met", cmbTipoPagofrmPago.Text);
@@ -211,14 +266,14 @@ namespace Clave5_Grupo6
 
                 tx.Commit();
                 MessageBox.Show("Reserva y pago registrados correctamente.");
-                btnMostrarPagos_Click(sender, e); // refrescar grilla
+                btnMostrarPagos_Click(sender, e);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error al registrar: " + ex.Message);
             }
         }
-
+    
         private void btnMostrarPagos_Click(object sender, EventArgs e)
         {
             var dt = new DataTable();
@@ -300,18 +355,14 @@ namespace Clave5_Grupo6
             chkIngresoAnticipado.Checked = false;
 
             if (cmbTipoPagofrmPago.Items.Count > 0) cmbTipoPagofrmPago.SelectedIndex = -1;
-            if (cmbReserva.Items.Count > 0) cmbReserva.SelectedIndex = -1;
 
-            // Reestablecer fechas a hoy/mañana por comodidad
             dtpCheckInn.Value = DateTime.Today;
             dtpCheckOut.Value = DateTime.Today.AddDays(1);
         }
 
         private void btnIrReservas_Click(object sender, EventArgs e)
         {
-            // Si necesitas abrir la ficha de reserva final:
-            // var frm = new frmReserva(reservaId); // cuando tengas el id
-            var frm = new frmReserva(); // ficha general
+            var frm = new frmReserva();
             frm.Show();
         }
 
@@ -320,53 +371,80 @@ namespace Clave5_Grupo6
             this.Close();
         }
 
-        private void txtPrecioFinalfrmPago_TextChanged(object sender, EventArgs e)
+        private string obtenerDisponibilidad(int habitacionId, DateTime entrada, DateTime salida)
         {
+            using var cn = NuevaConexion();
+            cn.Open();
 
-        }
+            var sql = @"
+            SELECT COUNT(*) AS cantidad,
+                   h.codigo_habitacion,
+                   h.Tipo_de_hotel
+            FROM tabla_reserva r
+            JOIN tabla_habitaciones h ON h.id_Habitaciones = r.habitacion_id
+            WHERE r.habitacion_id = @hab
+              AND h.Tipo_de_hotel = (SELECT Tipo_de_hotel FROM tabla_habitaciones WHERE id_Habitaciones = @hab)
+              AND NOT (r.fecha_salida <= @in OR r.fecha_entrada >= @out);";
 
-        private void txtPrecioBase_TextChanged(object sender, EventArgs e)
-        {
-            //Actualizar el precio base segun las noches de hospedaje
-            txtPrecioBase.Text = _precioBase.ToString("C2");
-        }
+            using var cmd = new MySqlCommand(sql, cn);
+            cmd.Parameters.AddWithValue("@hab", habitacionId);
+            cmd.Parameters.AddWithValue("@in", entrada.Date);
+            cmd.Parameters.AddWithValue("@out", salida.Date);
 
-        private void lblDisponible_Click(object sender, EventArgs e)
-        {
-            if (EstaDisponible(_habitacionId, dtpCheckInn.Value, dtpCheckOut.Value))
-                lblDisponibilidad.Text = "Disponible";
-            else
-                lblDisponibilidad.Text = "Ocupada";
-
+            using var rd = cmd.ExecuteReader();
+            if (rd.Read() && Convert.ToInt32(rd["cantidad"]) > 0)
+            {
+                string codigo = rd["codigo_habitacion"].ToString();
+                string hotel = rd["Tipo_de_hotel"].ToString();
+                return $"Ocupada ({hotel} - {codigo})";
+            }
+            return "Disponible";
         }
 
         private void chkIngresoAnticipado_CheckedChanged(object sender, EventArgs e)
         {
             if (chkIngresoAnticipado.Checked)
             {
-                // Permite cambiar solo la hora de entrada
-               dtpHoraCheckInn.Enabled = true;
-
-                // Hora de salida fija
+                dtpHoraCheckInn.Enabled = true;
                 dtpHoraCheckOut.Value = DateTime.Today.AddHours(14);
-              dtpHoraCheckOut.Enabled = false;
+                dtpHoraCheckOut.Enabled = false;
             }
             else
             {
-                // Si no hay ingreso anticipado, fija ambas horas por defecto
-               dtpHoraCheckInn.Value = DateTime.Today.AddHours(16);
+                dtpHoraCheckInn.Value = DateTime.Today.AddHours(16);
                 dtpHoraCheckInn.Enabled = false;
 
                 dtpHoraCheckOut.Value = DateTime.Today.AddHours(14);
-               dtpHoraCheckOut.Enabled = false;
+                dtpHoraCheckOut.Enabled = false;
             }
-            //Recalcula montos si cambia a ingreso anticpado 
             RecalcularMontos();
         }
+        private void gbxDetallesPago_Enter(object sender, EventArgs e) { }
+        // === HANDLERS QUE EL DISEÑADOR ESPERA ===
 
-        private void gbxDetallesPago_Enter(object sender, EventArgs e)
+        // Evento TextChanged del txtPrecioBase
+        private void txtPrecioBase_TextChanged(object sender, EventArgs e)
         {
-
+            // Si no quieres que haga nada, déjalo vacío.
+            // Puedes usarlo para forzar a recalcular si quieres:
+            // RecalcularMontos();
         }
+
+        // Evento TextChanged del txtPrecioFinalfrmPago
+        private void txtPrecioFinalfrmPago_TextChanged(object sender, EventArgs e)
+        {
+            // Lo mismo: puede estar vacío si no necesitas lógica aquí.
+        }
+
+        // Evento Click del lblDisponibilidad
+        private void lblDisponible_Click(object sender, EventArgs e)
+        {
+            // Actualiza el label según disponibilidad actual
+            if (EstaDisponible(_habitacionId,_hotelId, dtpCheckInn.Value, dtpCheckOut.Value))
+                lblDisponibilidad.Text = "Disponible";
+            else
+                lblDisponibilidad.Text = "Ocupada";
+        }
+
     }
 }

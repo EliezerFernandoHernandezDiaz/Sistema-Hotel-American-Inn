@@ -85,9 +85,6 @@ namespace Clave5_Grupo6
 
         private void btnAgregarDatosHabitacion_Click(object sender, EventArgs e)
         {
-            //se elimina la cadena harcodeada y se usa app.config mediante nuevaConexion()
-            //  string cadenaConexion = "database=clave5_grupo6db;server=localhost;user id=root;password=Fernandomysql";
-
             try
             {
                 using (MySqlConnection conexionDB = NuevaConexion())
@@ -123,7 +120,9 @@ namespace Clave5_Grupo6
                 }
 
                 // Agregar cualquier lógica adicional después de la inserción, si es necesario
+              
                 MessageBox.Show("Datos de la habitación agregados correctamente", "Mensaje de confirmación", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LimpiarControlesHabitacion();
             }
             catch (Exception ex)
             {
@@ -136,20 +135,23 @@ namespace Clave5_Grupo6
             btnMostrarDatosHabitacion_Click(sender, e);
         }
 
-
+        private void LimpiarControlesHabitacion()
+        {
+            txtEquipoDisponiblefrmHab.Clear();
+            txtPrecioBasefrmHabitacion.Clear();
+            cmbTipoHabitacion.SelectedIndex = -1;
+            cmbTipoHotelfrmHab.SelectedIndex = -1;
+        }
+            
         private void btnMostrarDatosHabitacion_Click(object sender, EventArgs e)
         {
-            //Lo mismo, se elimina la cadena harcodeada y se usa app.config mediante metodo NuevaConexion()
-
-            // string cadenaConexion = "database= clave5_grupo6db;  server=localhost; user id= root; password= Fernandomysql";
-
             DataTable dataTable = new DataTable();
 
             try
             {
                 using (var conexionDB = NuevaConexion())
                 {
-                    using (var comando = new MySqlCommand("SELECT * FROM tabla_habitaciones;", conexionDB))
+                    using (var comando = new MySqlCommand("SELECT * FROM tabla_habitaciones ORDER BY id_Habitaciones DESC;", conexionDB))
                     {
                         comando.CommandType = CommandType.Text;
                         conexionDB.Open();
@@ -164,7 +166,15 @@ namespace Clave5_Grupo6
             {
                 MessageBox.Show(ex.Message);
             }
+
             dgvTablaHabitacion.DataSource = dataTable;
+
+            // *** IMPORTANTE: LIMPIA LA SELECCIÓN DESPUÉS DE CARGAR DATOS ***
+            dgvTablaHabitacion.ClearSelection();
+            if (dgvTablaHabitacion.Rows.Count > 0)
+            {
+                dgvTablaHabitacion.CurrentCell = null;
+            }
         }
 
         private void btnIrATablaPago_Click(object sender, EventArgs e) //Comando para abrir el formulario que va a mostrar la tabla pago 
@@ -174,13 +184,24 @@ namespace Clave5_Grupo6
                 MessageBox.Show("Seleccione primero un cliente.");
                 return;
             }
-            if (dgvTablaHabitacion.SelectedRows.Count == 0)
+
+            // *** USAR CURRENTROW EN LUGAR DE SELECTEDROWS ***
+            if (dgvTablaHabitacion.CurrentRow == null)
             {
-                MessageBox.Show("Seleccione una habitación.");
+                MessageBox.Show("Seleccione una habitación haciendo clic en una fila.");
                 return;
             }
 
-            int habitacionId = Convert.ToInt32(dgvTablaHabitacion.SelectedRows[0].Cells["id_Habitaciones"].Value);
+            var currentRow = dgvTablaHabitacion.CurrentRow;
+            var cellValue = currentRow.Cells["id_Habitaciones"].Value;
+
+            if (cellValue == null || cellValue == DBNull.Value)
+            {
+                MessageBox.Show("Error: No se puede obtener el ID de la habitación.");
+                return;
+            }
+
+            int habitacionId = Convert.ToInt32(cellValue);
             int clienteId = Convert.ToInt32(cmbCliente.SelectedValue);
 
             frmPago frm = new frmPago(habitacionId, clienteId);
@@ -320,11 +341,17 @@ namespace Clave5_Grupo6
 
         private void frmHabitAciones_Load(object sender, EventArgs e)
         {
+            // Configuración del DataGridView
             dgvTablaHabitacion.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvTablaHabitacion.MultiSelect = false;
             dgvTablaHabitacion.ReadOnly = true;
-            CargarClientesCombo(); // carga los clientes ya guardados en la bd, al combo 
 
+            // *** ESTAS LÍNEAS SON IMPORTANTES PARA EVITAR SELECCIÓN AUTOMÁTICA ***
+            dgvTablaHabitacion.ClearSelection();           // Limpia cualquier selección
+            dgvTablaHabitacion.CurrentCell = null;         // No hay celda actual
+            dgvTablaHabitacion.AutoGenerateColumns = true; // Permite columnas automáticas
+
+            CargarClientesCombo();
         }
 
         private void dgvTablaHabitacion_CellContentClick(object sender, DataGridViewCellEventArgs e)

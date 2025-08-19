@@ -43,9 +43,7 @@ namespace Clave5_Grupo6
             this.label7 = new System.Windows.Forms.Label();
             this.btnIrReservas = new System.Windows.Forms.Button();
             this.btnEliminar = new System.Windows.Forms.Button();
-            this.cmbReserva = new System.Windows.Forms.ComboBox();
             this.gbxDetallesPago = new System.Windows.Forms.GroupBox();
-            this.label11 = new System.Windows.Forms.Label();
             this.lblDisponible = new System.Windows.Forms.Label();
             this.lblDisponibilidad = new System.Windows.Forms.Label();
             this.chkIngresoAnticipado = new System.Windows.Forms.CheckBox();
@@ -55,11 +53,12 @@ namespace Clave5_Grupo6
             this.dtpHoraCheckInn = new System.Windows.Forms.DateTimePicker();
             this.label8 = new System.Windows.Forms.Label();
             this.dtpCheckOut = new System.Windows.Forms.DateTimePicker();
+            this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.dtpCheckInn = new System.Windows.Forms.DateTimePicker();
             this.label2 = new System.Windows.Forms.Label();
             this.txtNoches = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblNombreCliente = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMostrarTablaPago)).BeginInit();
             this.gbxDetallesPago.SuspendLayout();
             this.SuspendLayout();
@@ -156,9 +155,9 @@ namespace Clave5_Grupo6
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(68, 54);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(138, 16);
+            this.label6.Size = new System.Drawing.Size(220, 32);
             this.label6.TabIndex = 28;
-            this.label6.Text = "Seleccione la reserva\r\n";
+            this.label6.Text = "Nombre del hueped a realizar pago\r\n\r\n";
             // 
             // cmbTipoPagofrmPago
             // 
@@ -201,17 +200,8 @@ namespace Clave5_Grupo6
             this.btnEliminar.UseVisualStyleBackColor = true;
             this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
             // 
-            // cmbReserva
-            // 
-            this.cmbReserva.FormattingEnabled = true;
-            this.cmbReserva.Location = new System.Drawing.Point(346, 46);
-            this.cmbReserva.Name = "cmbReserva";
-            this.cmbReserva.Size = new System.Drawing.Size(172, 24);
-            this.cmbReserva.TabIndex = 35;
-            // 
             // gbxDetallesPago
             // 
-            this.gbxDetallesPago.Controls.Add(this.label11);
             this.gbxDetallesPago.Controls.Add(this.lblDisponible);
             this.gbxDetallesPago.Controls.Add(this.lblDisponibilidad);
             this.gbxDetallesPago.Controls.Add(this.chkIngresoAnticipado);
@@ -242,19 +232,10 @@ namespace Clave5_Grupo6
             this.gbxDetallesPago.Text = "Detalles del Pago";
             this.gbxDetallesPago.Enter += new System.EventHandler(this.gbxDetallesPago_Enter);
             // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(6, 387);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(128, 20);
-            this.label11.TabIndex = 48;
-            this.label11.Text = "Disponibilidad\r\n";
-            // 
             // lblDisponible
             // 
             this.lblDisponible.AutoSize = true;
-            this.lblDisponible.Location = new System.Drawing.Point(267, 387);
+            this.lblDisponible.Location = new System.Drawing.Point(6, 388);
             this.lblDisponible.Name = "lblDisponible";
             this.lblDisponible.Size = new System.Drawing.Size(128, 20);
             this.lblDisponible.TabIndex = 47;
@@ -264,10 +245,11 @@ namespace Clave5_Grupo6
             // lblDisponibilidad
             // 
             this.lblDisponibilidad.AutoSize = true;
-            this.lblDisponibilidad.Location = new System.Drawing.Point(6, 387);
+            this.lblDisponibilidad.Location = new System.Drawing.Point(399, 388);
             this.lblDisponibilidad.Name = "lblDisponibilidad";
-            this.lblDisponibilidad.Size = new System.Drawing.Size(0, 20);
+            this.lblDisponibilidad.Size = new System.Drawing.Size(112, 20);
             this.lblDisponibilidad.TabIndex = 46;
+            this.lblDisponibilidad.Text = "\"Disponible\"";
             // 
             // chkIngresoAnticipado
             // 
@@ -332,6 +314,15 @@ namespace Clave5_Grupo6
             this.dtpCheckOut.Size = new System.Drawing.Size(200, 27);
             this.dtpCheckOut.TabIndex = 37;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 269);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(189, 20);
+            this.label1.TabIndex = 32;
+            this.label1.Text = "Noches de hospedaje\r\n";
+            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -364,14 +355,14 @@ namespace Clave5_Grupo6
             this.txtNoches.Size = new System.Drawing.Size(200, 27);
             this.txtNoches.TabIndex = 33;
             // 
-            // label1
+            // lblNombreCliente
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 269);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(189, 20);
-            this.label1.TabIndex = 32;
-            this.label1.Text = "Noches de hospedaje\r\n";
+            this.lblNombreCliente.AutoSize = true;
+            this.lblNombreCliente.Location = new System.Drawing.Point(518, 54);
+            this.lblNombreCliente.Name = "lblNombreCliente";
+            this.lblNombreCliente.Size = new System.Drawing.Size(51, 16);
+            this.lblNombreCliente.TabIndex = 37;
+            this.lblNombreCliente.Text = "label10";
             // 
             // frmPago
             // 
@@ -379,8 +370,8 @@ namespace Clave5_Grupo6
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.ClientSize = new System.Drawing.Size(1415, 748);
+            this.Controls.Add(this.lblNombreCliente);
             this.Controls.Add(this.gbxDetallesPago);
-            this.Controls.Add(this.cmbReserva);
             this.Controls.Add(this.btnEliminar);
             this.Controls.Add(this.btnIrReservas);
             this.Controls.Add(this.label6);
@@ -415,7 +406,6 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnIrReservas;
         private System.Windows.Forms.Button btnEliminar;
-        private System.Windows.Forms.ComboBox cmbReserva;
         private System.Windows.Forms.GroupBox gbxDetallesPago;
         private System.Windows.Forms.TextBox txtNoches;
         private System.Windows.Forms.Label label1;
@@ -430,7 +420,7 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.DateTimePicker dtpHoraCheckOut;
         private System.Windows.Forms.Label lblDisponibilidad;
         private System.Windows.Forms.CheckBox chkIngresoAnticipado;
-        private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label lblDisponible;
+        private System.Windows.Forms.Label lblNombreCliente;
     }
 }

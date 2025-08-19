@@ -126,18 +126,78 @@ namespace Clave5_Grupo6
         }
 
         private void frmReserva_Load(object sender, EventArgs e)
+
         {
-            // Campos de resumen: solo lectura
-            if (Controls.ContainsKey("txtHotelSeleccionado")) txtHotelSeleccionado.ReadOnly = true;
-            if (Controls.ContainsKey("txtHabitacionSeleccionada")) txtHabitacionSeleccionada.ReadOnly = true;
-            if (Controls.ContainsKey("txtFormaPago")) txtMetPagoSeleccionado.ReadOnly = true;
-            if (Controls.ContainsKey("txtPrecioBaseHabitacion")) txtPrecioSinIVA.ReadOnly = true;
-            if (Controls.ContainsKey("txtPrecioIvaTotal")) txtPrecioFinal.ReadOnly = true;
+            using var cn = NuevaConexion();
+            using var da = new MySqlDataAdapter(@"
+        SELECT DISTINCT 
+            c.id AS cliente_id,
+            CONCAT(c.dui, ' - ', c.nombre, ' ', c.apellidos) AS NombreCompleto
+        FROM cliente c
+        JOIN tabla_reserva r ON c.id = r.cliente_id
+        JOIN pagos p ON r.id_reserva = p.reserva_id;", cn);
 
-            if (Controls.ContainsKey("dtpFechaEntrada")) dtpFechaEntrada.Enabled = false;
-            if (Controls.ContainsKey("dtpFechaSalida")) dtpFechaSalida.Enabled = false;
+            DataTable dt = new DataTable();
+            da.Fill(dt);
 
-            if (_idReserva > 0) CargarFicha(_idReserva);
+            cmbSeleccionarHuesped.DataSource = dt;
+            cmbSeleccionarHuesped.DisplayMember = "NombreCompleto";
+            cmbSeleccionarHuesped.ValueMember = "cliente_id";
+            cmbSeleccionarHuesped.SelectedIndex = -1;
+            // Configurar campos como solo lectura
+            txtHotelSeleccionado.ReadOnly = true;
+            txtHabitacionSeleccionada.ReadOnly = true;
+            txtMetPagoSeleccionado.ReadOnly = true;
+            txtPrecioSinIVA.ReadOnly = true;
+            txtPrecioFinal.ReadOnly = true;
+
+            // Deshabilitar controles de fecha si es necesario
+            dtpFechaEntrada.Enabled = false;
+            dtpFechaSalida.Enabled = false;
+
+            // Cargar datos
+            if (_idReserva > 0)
+                CargarFicha(_idReserva);
+
+            CargarClientesPago();
+
+            // Asignar evento después de cargar los datos
+            cmbSeleccionarHuesped.SelectedIndexChanged += cmbSeleccionarHuesped_SelectedIndexChanged;
+        }
+
+        private void CargarClientesPago()
+        {
+            try
+            {
+                using var cn = NuevaConexion();
+                using var da = new MySqlDataAdapter(@"
+            SELECT 
+                c.id AS cliente_id,
+                CONCAT(c.dui, ' - ', c.nombre, ' ', c.apellidos) AS NombreCompleto
+            FROM cliente c
+            JOIN tabla_reserva r ON c.id = r.cliente_id
+            JOIN pagos p ON r.id_reserva = p.reserva_id
+            GROUP BY c.id, c.dui, c.nombre, c.apellidos
+            ORDER BY c.nombre, c.apellidos;", cn);
+
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                // Agregar fila vacía al inicio
+                DataRow emptyRow = dt.NewRow();
+                emptyRow["cliente_id"] = DBNull.Value;
+                emptyRow["NombreCompleto"] = "-- Seleccionar huésped --";
+                dt.Rows.InsertAt(emptyRow, 0);
+
+                cmbSeleccionarHuesped.DataSource = dt;
+                cmbSeleccionarHuesped.DisplayMember = "NombreCompleto";
+                cmbSeleccionarHuesped.ValueMember = "cliente_id";
+                cmbSeleccionarHuesped.SelectedIndex = 0; // Selecciona la opción vacía
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar huéspedes: {ex.Message}");
+            }
         }
         // Carga y pinta la ficha (JOIN con habitación y, si existe, con el último pago)
         private void CargarFicha(int idReserva)
@@ -394,7 +454,101 @@ namespace Clave5_Grupo6
                 MessageBox.Show("Error al eliminar la reserva: " + ex.Message);
             }
         }
+
+        private void cmbSeleccionarHuesped_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Verificar que hay una selección válida
+            if (cmbSeleccionarHuesped.SelectedValue == null ||
+                cmbSeleccionarHuesped.SelectedValue == DBNull.Value ||
+                cmbSeleccionarHuesped.SelectedIndex <= 0)
+            {
+                LimpiarCamposHuesped();
+                return;
+            }
+
+            try
+            {
+                using var cn = NuevaConexion();
+                cn.Open();
+
+                var sql = @"
+            SELECT 
+                h.Tipo_de_hotel,
+                h.Tipo_de_habitacion,
+                p.metodo_pago,
+                p.precio_base,
+                p.total,
+                h.Equipo_disponible,
+                r.fecha_entrada,
+                r.fecha_salida
+            FROM pagos p
+            JOIN tabla_reserva r ON r.id_reserva = p.reserva_id
+            JOIN tabla_habitaciones h ON h.id_Habitaciones = r.habitacion_id
+            WHERE r.cliente_id = @cli
+            ORDER BY p.id DESC
+            LIMIT 1;";
+
+                using var cmd = new MySqlCommand(sql, cn);
+
+                // Conversión segura del SelectedValue
+                int clienteId;
+                if (int.TryParse(cmbSeleccionarHuesped.SelectedValue.ToString(), out clienteId))
+                {
+                    cmd.Parameters.AddWithValue("@cli", clienteId);
+                }
+                else
+                {
+                    MessageBox.Show("Error: ID de cliente no válido.");
+                    return;
+                }
+
+                using var rd = cmd.ExecuteReader();
+                if (rd.Read())
+                {
+                    // Llenar los campos con la información del huésped
+                    txtHotelSeleccionado.Text = rd["Tipo_de_hotel"]?.ToString() ?? "";
+                    txtHabitacionSeleccionada.Text = rd["Tipo_de_habitacion"]?.ToString() ?? "";
+                    txtMetPagoSeleccionado.Text = rd["metodo_pago"]?.ToString() ?? "";
+
+                    // Manejo seguro de valores decimales
+                    if (rd["precio_base"] != DBNull.Value)
+                        txtPrecioSinIVA.Text = Convert.ToDecimal(rd["precio_base"]).ToString("C2");
+                    else
+                        txtPrecioSinIVA.Text = "";
+
+                    if (rd["total"] != DBNull.Value)
+                        txtPrecioFinal.Text = Convert.ToDecimal(rd["total"]).ToString("C2");
+                    else
+                        txtPrecioFinal.Text = "";
+
+                    txtEquipoDisponible.Text = rd["Equipo_disponible"]?.ToString() ?? "";
+
+                    // Opcional: mostrar fechas de la reserva
+                    if (rd["fecha_entrada"] != DBNull.Value)
+                        dtpFechaEntrada.Value = rd.GetDateTime("fecha_entrada");
+                    if (rd["fecha_salida"] != DBNull.Value)
+                        dtpFechaSalida.Value = rd.GetDateTime("fecha_salida");
+                }
+                else
+                {
+                    MessageBox.Show("No se encontraron datos de pago para este huésped.");
+                    LimpiarCamposHuesped();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar información del huésped: {ex.Message}");
+            }
+        }
+        private void LimpiarCamposHuesped()
+        {
+            txtHotelSeleccionado.Text = "";
+            txtHabitacionSeleccionada.Text = "";
+            txtMetPagoSeleccionado.Text = "";
+            txtPrecioSinIVA.Text = "";
+            txtPrecioFinal.Text = "";
+            txtEquipoDisponible.Text = "";
+        }
+
     }
-
-
 }

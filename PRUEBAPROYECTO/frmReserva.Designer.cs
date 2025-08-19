@@ -392,6 +392,7 @@ namespace Clave5_Grupo6
             this.cmbSeleccionarHuesped.Name = "cmbSeleccionarHuesped";
             this.cmbSeleccionarHuesped.Size = new System.Drawing.Size(223, 24);
             this.cmbSeleccionarHuesped.TabIndex = 65;
+            this.cmbSeleccionarHuesped.SelectedIndexChanged += new System.EventHandler(this.cmbSeleccionarHuesped_SelectedIndexChanged);
             // 
             // label1
             // 

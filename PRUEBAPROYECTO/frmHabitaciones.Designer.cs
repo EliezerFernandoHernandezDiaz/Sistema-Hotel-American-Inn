@@ -76,6 +76,7 @@ namespace Clave5_Grupo6
             // 
             // txtPrecioBasefrmHabitacion
             // 
+            this.txtPrecioBasefrmHabitacion.Enabled = false;
             this.txtPrecioBasefrmHabitacion.Location = new System.Drawing.Point(306, 315);
             this.txtPrecioBasefrmHabitacion.Name = "txtPrecioBasefrmHabitacion";
             this.txtPrecioBasefrmHabitacion.Size = new System.Drawing.Size(251, 22);
