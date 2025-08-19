@@ -311,31 +311,26 @@ namespace Clave5_Grupo6
         // Método que ayuda a eliminar la habitación
         private void EliminarHabitacion(string idHabitacion)
         {
-            // Se establece conexión para eliminarla, se elimina la cadena harcodeada. 
-            //string cadenaConexion = "database=clave5_grupo6db;server=localhost;user id=root;password=Fernandomysql";
             try
             {
                 using (var conexionDB = NuevaConexion())
                 {
                     conexionDB.Open();
 
-                    // Crea un comando para la eliminación con parámetros
-                    string sql = "DELETE FROM tabla_habitaciones WHERE id_Habitaciones = @idHabitacion";
+                    string sql = "UPDATE tabla_habitaciones SET estado = 'Inactiva' WHERE id_Habitaciones = @idHabitacion";
 
                     using (var cmd = new MySqlCommand(sql, conexionDB))
                     {
-                        // Agrega el parámetro para el id_Habitacion
                         cmd.Parameters.AddWithValue("@idHabitacion", idHabitacion);
-
-                        // Ejecuta la eliminación
                         cmd.ExecuteNonQuery();
                     }
                 }
-                MessageBox.Show("Habitación eliminada con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                MessageBox.Show("Habitación marcada como inactiva.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al eliminar la habitación: " + ex.Message);
+                MessageBox.Show("Error al marcar la habitación: " + ex.Message);
             }
         }
 
@@ -356,6 +351,12 @@ namespace Clave5_Grupo6
 
         private void dgvTablaHabitacion_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+
+        }
+
+        private void txtEquipoDisponiblefrmHab_TextChanged(object sender, EventArgs e)
+        {
+            //Poner por defecto valor de equipo disponible 
 
         }
     }

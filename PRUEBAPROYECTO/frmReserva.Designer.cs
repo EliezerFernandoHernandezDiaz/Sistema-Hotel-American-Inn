@@ -47,7 +47,7 @@ namespace Clave5_Grupo6
             this.label17 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
             this.btnMostrarReservas = new System.Windows.Forms.Button();
-            this.btnAgregarReserva = new System.Windows.Forms.Button();
+            this.btnActualizarInfoReserva = new System.Windows.Forms.Button();
             this.txtPrecioSinIVA = new System.Windows.Forms.TextBox();
             this.txtPrecioFinal = new System.Windows.Forms.TextBox();
             this.txtHotelSeleccionado = new System.Windows.Forms.TextBox();
@@ -262,15 +262,15 @@ namespace Clave5_Grupo6
             this.btnMostrarReservas.UseVisualStyleBackColor = true;
             this.btnMostrarReservas.Click += new System.EventHandler(this.btnMostrarReservas_Click);
             // 
-            // btnAgregarReserva
+            // btnActualizarInfoReserva
             // 
-            this.btnAgregarReserva.Location = new System.Drawing.Point(951, 665);
-            this.btnAgregarReserva.Name = "btnAgregarReserva";
-            this.btnAgregarReserva.Size = new System.Drawing.Size(114, 64);
-            this.btnAgregarReserva.TabIndex = 46;
-            this.btnAgregarReserva.Text = "Agregar Reserva";
-            this.btnAgregarReserva.UseVisualStyleBackColor = true;
-            this.btnAgregarReserva.Click += new System.EventHandler(this.btnAgregarReserva_Click);
+            this.btnActualizarInfoReserva.Location = new System.Drawing.Point(951, 665);
+            this.btnActualizarInfoReserva.Name = "btnActualizarInfoReserva";
+            this.btnActualizarInfoReserva.Size = new System.Drawing.Size(114, 64);
+            this.btnActualizarInfoReserva.TabIndex = 46;
+            this.btnActualizarInfoReserva.Text = "Actualizar Información";
+            this.btnActualizarInfoReserva.UseVisualStyleBackColor = true;
+            this.btnActualizarInfoReserva.Click += new System.EventHandler(this.btnAgregarReserva_Click);
             // 
             // txtPrecioSinIVA
             // 
@@ -524,7 +524,7 @@ namespace Clave5_Grupo6
             this.Controls.Add(this.btnBuscar);
             this.Controls.Add(this.btnModificar);
             this.Controls.Add(this.label20);
-            this.Controls.Add(this.btnAgregarReserva);
+            this.Controls.Add(this.btnActualizarInfoReserva);
             this.Controls.Add(this.btnMostrarReservas);
             this.Controls.Add(this.label18);
             this.Controls.Add(this.label17);
@@ -565,7 +565,7 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.Button btnMostrarReservas;
-        private System.Windows.Forms.Button btnAgregarReserva;
+        private System.Windows.Forms.Button btnActualizarInfoReserva;
         private System.Windows.Forms.TextBox txtPrecioSinIVA;
         private System.Windows.Forms.TextBox txtPrecioFinal;
         private System.Windows.Forms.TextBox txtHotelSeleccionado;

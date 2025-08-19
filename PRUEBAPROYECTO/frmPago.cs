@@ -69,6 +69,7 @@ namespace Clave5_Grupo6
 
         }
 
+
         // Cargar huesped en el label 
         private void CargarClienteActual()
         {
@@ -215,7 +216,6 @@ namespace Clave5_Grupo6
                 return;
             }
 
-
             int noches = int.Parse(txtNoches.Text);
             decimal subtotal = _precioBase * noches;
             decimal extra = chkIngresoAnticipado.Checked ? 20m : 0m;
@@ -246,12 +246,12 @@ namespace Clave5_Grupo6
                     reservaId = Convert.ToInt32(insR.ExecuteScalar());
                 }
 
-                // 2) Insertar el pago
+                // 2) Insertar el pago CON LAS HORAS
                 using (var insP = new MySqlCommand(@"
             INSERT INTO pagos
-              (reserva_id, metodo_pago, precio_base, noches, subtotal, extra_ingreso, iva, total)
+              (reserva_id, metodo_pago, precio_base, noches, subtotal, extra_ingreso, iva, total, hora_entrada, hora_salida)
             VALUES
-              (@res, @met, @base, @noches, @sub, @extra, @iva, @tot);", cn, tx))
+              (@res, @met, @base, @noches, @sub, @extra, @iva, @tot, @hora_in, @hora_out);", cn, tx))
                 {
                     insP.Parameters.AddWithValue("@res", reservaId);
                     insP.Parameters.AddWithValue("@met", cmbTipoPagofrmPago.Text);
@@ -261,6 +261,11 @@ namespace Clave5_Grupo6
                     insP.Parameters.AddWithValue("@extra", extra);
                     insP.Parameters.AddWithValue("@iva", iva);
                     insP.Parameters.AddWithValue("@tot", total);
+
+                    // *** AGREGAR LAS HORAS ***
+                    insP.Parameters.AddWithValue("@hora_in", dtpHoraCheckInn.Value.TimeOfDay);
+                    insP.Parameters.AddWithValue("@hora_out", dtpHoraCheckOut.Value.TimeOfDay);
+
                     insP.ExecuteNonQuery();
                 }
 
@@ -362,8 +367,15 @@ namespace Clave5_Grupo6
 
         private void btnIrReservas_Click(object sender, EventArgs e)
         {
-            var frm = new frmReserva();
-            frm.Show();
+            // Cerrar el formulario actual primero
+            this.Hide();
+
+            // Crear el formulario de reservas
+            var frm = new frmReserva(0); // Pasar 0 como parámetro
+            frm.ShowDialog(); // Usar ShowDialog para que sea modal
+
+            // Opcional: cerrar este formulario cuando se cierre el de reservas
+            this.Close();
         }
 
         private void btnCerrar_Click(object sender, EventArgs e)

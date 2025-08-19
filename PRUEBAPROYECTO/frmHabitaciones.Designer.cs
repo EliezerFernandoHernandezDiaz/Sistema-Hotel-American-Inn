@@ -42,7 +42,7 @@ namespace Clave5_Grupo6
             this.txtLimpiarCamposHabitacion = new System.Windows.Forms.Button();
             this.btnCerrarfrmDatosHab = new System.Windows.Forms.Button();
             this.btnIrATablaPago = new System.Windows.Forms.Button();
-            this.btnEliminar = new System.Windows.Forms.Button();
+            this.btnMarcarInactiva = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -108,11 +108,12 @@ namespace Clave5_Grupo6
             // txtEquipoDisponiblefrmHab
             // 
             this.txtEquipoDisponiblefrmHab.Enabled = false;
-            this.txtEquipoDisponiblefrmHab.Location = new System.Drawing.Point(306, 406);
+            this.txtEquipoDisponiblefrmHab.Location = new System.Drawing.Point(326, 411);
             this.txtEquipoDisponiblefrmHab.Name = "txtEquipoDisponiblefrmHab";
             this.txtEquipoDisponiblefrmHab.Size = new System.Drawing.Size(251, 22);
             this.txtEquipoDisponiblefrmHab.TabIndex = 8;
             this.txtEquipoDisponiblefrmHab.Text = "Tv, cama, aire acondicionado";
+            this.txtEquipoDisponiblefrmHab.TextChanged += new System.EventHandler(this.txtEquipoDisponiblefrmHab_TextChanged);
             // 
             // label5
             // 
@@ -183,15 +184,15 @@ namespace Clave5_Grupo6
             this.btnIrATablaPago.UseVisualStyleBackColor = true;
             this.btnIrATablaPago.Click += new System.EventHandler(this.btnIrATablaPago_Click);
             // 
-            // btnEliminar
+            // btnMarcarInactiva
             // 
-            this.btnEliminar.Location = new System.Drawing.Point(197, 502);
-            this.btnEliminar.Name = "btnEliminar";
-            this.btnEliminar.Size = new System.Drawing.Size(118, 77);
-            this.btnEliminar.TabIndex = 19;
-            this.btnEliminar.Text = "Eliminar";
-            this.btnEliminar.UseVisualStyleBackColor = true;
-            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
+            this.btnMarcarInactiva.Location = new System.Drawing.Point(197, 502);
+            this.btnMarcarInactiva.Name = "btnMarcarInactiva";
+            this.btnMarcarInactiva.Size = new System.Drawing.Size(118, 77);
+            this.btnMarcarInactiva.TabIndex = 19;
+            this.btnMarcarInactiva.Text = "Marcar Habitación Inactiva";
+            this.btnMarcarInactiva.UseVisualStyleBackColor = true;
+            this.btnMarcarInactiva.Click += new System.EventHandler(this.btnEliminar_Click);
             // 
             // label1
             // 
@@ -267,7 +268,7 @@ namespace Clave5_Grupo6
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.btnEliminar);
+            this.Controls.Add(this.btnMarcarInactiva);
             this.Controls.Add(this.btnIrATablaPago);
             this.Controls.Add(this.btnCerrarfrmDatosHab);
             this.Controls.Add(this.txtLimpiarCamposHabitacion);
@@ -304,7 +305,7 @@ namespace Clave5_Grupo6
         private System.Windows.Forms.Button txtLimpiarCamposHabitacion;
         private System.Windows.Forms.Button btnCerrarfrmDatosHab;
         private System.Windows.Forms.Button btnIrATablaPago;
-        private System.Windows.Forms.Button btnEliminar;
+        private System.Windows.Forms.Button btnMarcarInactiva;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label3;

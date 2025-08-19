@@ -10,7 +10,7 @@ namespace Clave5_Grupo6
     public partial class frmReserva : Form
     {
         //Esta ficha muestra / actualiza una reserva ya creada
-        private readonly int _idReserva;
+        private int _idReserva;
 
         public frmReserva() : this(0)
         {
@@ -19,6 +19,7 @@ namespace Clave5_Grupo6
         public frmReserva(int idReserva)
         {
             InitializeComponent();
+            _idReserva = idReserva;
         }
         //Helper privado para obtener la conexion desde app.config
         private MySqlConnection NuevaConexion()
@@ -38,9 +39,6 @@ namespace Clave5_Grupo6
         {
 
         }
-
-
-
         private decimal CalcularSubtotal(decimal precioHabitacion, DateTime fechaInicio, DateTime fechaFin)
         {
             // Calcula el número de días de la reserva
@@ -86,10 +84,49 @@ namespace Clave5_Grupo6
 
         private void btnAgregarReserva_Click(object sender, EventArgs e)
         {
-            if (_idReserva == 0)
+            //si no hay reserva especifica, usar la del huesped seleccionado
+            int reservaAActualizar = _idReserva;
+            if (reservaAActualizar == 0)
             {
-                MessageBox.Show("No hay reserva seleccionada.");
-                return;
+                // Obtener la reserva del huésped seleccionado
+                if (cmbSeleccionarHuesped.SelectedValue == null ||
+                    cmbSeleccionarHuesped.SelectedValue == DBNull.Value ||
+                    cmbSeleccionarHuesped.SelectedIndex <= 0)
+                {
+                    MessageBox.Show("Seleccione un huésped válido.");
+                    return;
+                }
+
+                try
+                {
+                    using var cn = NuevaConexion();
+                    cn.Open();
+
+                    int clienteId = Convert.ToInt32(cmbSeleccionarHuesped.SelectedValue);
+
+                    using var cmd = new MySqlCommand(@"
+                SELECT r.id_reserva 
+                FROM tabla_reserva r 
+                WHERE r.cliente_id = @cli 
+                ORDER BY r.id_reserva DESC 
+                LIMIT 1;", cn);
+
+                    cmd.Parameters.AddWithValue("@cli", clienteId);
+
+                    var result = cmd.ExecuteScalar();
+                    if (result == null)
+                    {
+                        MessageBox.Show("No se encontró una reserva para este huésped.");
+                        return;
+                    }
+
+                    reservaAActualizar = Convert.ToInt32(result);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al buscar la reserva: {ex.Message}");
+                    return;
+                }
             }
 
             if (!int.TryParse(txtCantHuespedes.Text, out int n) || n <= 0)
@@ -98,26 +135,41 @@ namespace Clave5_Grupo6
                 return;
             }
 
-            using var cn = NuevaConexion();
-            cn.Open();
+            try
+            {
+                using var cn = NuevaConexion();
+                cn.Open();
 
-            var up = new MySqlCommand(@"
-                UPDATE tabla_reserva
-                   SET num_huespedes = @n,
-                       notas = @notas,
-                       estado = 'CONFIRMADA'
-                 WHERE id_reserva = @id;", cn);
+                var up = new MySqlCommand(@"
+            UPDATE tabla_reserva
+               SET num_huespedes = @n,
+                   notas = @notas,
+                   estado = 'CONFIRMADA'
+             WHERE id_reserva = @id;", cn);
 
-            up.Parameters.AddWithValue("@n", n);
-            up.Parameters.AddWithValue("@notas", string.IsNullOrWhiteSpace(txtInfoHuespedes.Text) ? (object)DBNull.Value : txtInfoHuespedes.Text);
-            up.Parameters.AddWithValue("@id", _idReserva);
+                up.Parameters.AddWithValue("@n", n);
+                up.Parameters.AddWithValue("@notas", string.IsNullOrWhiteSpace(txtInfoHuespedes.Text) ? (object)DBNull.Value : txtInfoHuespedes.Text);
+                up.Parameters.AddWithValue("@id", reservaAActualizar);
 
-            up.ExecuteNonQuery();
-            MessageBox.Show("Reserva confirmada.");
+                int filasAfectadas = up.ExecuteNonQuery();
 
-            // refresca ficha / listado
-            CargarFicha(_idReserva);
-            if (dgvReservas?.DataSource != null) btnMostrarReservas_Click(sender, e);
+                if (filasAfectadas > 0)
+                {
+                    MessageBox.Show("Reserva actualizada correctamente.");
+                    // Actualizar _idReserva para futuras operaciones
+                    _idReserva = reservaAActualizar;
+                    // Recargar la información
+                    if (dgvReservas?.DataSource != null) btnMostrarReservas_Click(sender, e);
+                }
+                else
+                {
+                    MessageBox.Show("No se pudo actualizar la reserva. Verifique que existe.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al actualizar la reserva: {ex.Message}");
+            }
         }
         private void button3_Click(object sender, EventArgs e) //btnSalir
         {
@@ -161,9 +213,20 @@ namespace Clave5_Grupo6
 
             // Asignar evento después de cargar datos
             cmbSeleccionarHuesped.SelectedIndexChanged += cmbSeleccionarHuesped_SelectedIndexChanged;
-            // Asignar evento después de cargar los datos
-            cmbSeleccionarHuesped.SelectedIndexChanged += cmbSeleccionarHuesped_SelectedIndexChanged;
+
+            if (_idReserva > 0)
+            {
+                CargarFicha(_idReserva);
+            }
+            else
+            {
+                // Si no hay reserva específica, mostrar mensaje informativo
+                MessageBox.Show("Seleccione un huésped para ver su información de reserva.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
+
+        //metodo para establecer hora de entrada y salida leidas desde frmPago
+
 
         private void CargarClientesPago()
         {
@@ -457,10 +520,9 @@ namespace Clave5_Grupo6
 
         private void cmbSeleccionarHuesped_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Verificar que hay una selección válida
             if (cmbSeleccionarHuesped.SelectedValue == null ||
-                cmbSeleccionarHuesped.SelectedValue == DBNull.Value ||
-                cmbSeleccionarHuesped.SelectedIndex <= 0)
+          cmbSeleccionarHuesped.SelectedValue == DBNull.Value ||
+          cmbSeleccionarHuesped.SelectedIndex < 0)
             {
                 LimpiarCamposHuesped();
                 return;
@@ -471,6 +533,7 @@ namespace Clave5_Grupo6
                 using var cn = NuevaConexion();
                 cn.Open();
 
+                // Consulta CON las columnas de hora ya creadas
                 var sql = @"
             SELECT 
                 h.Tipo_de_hotel,
@@ -480,7 +543,11 @@ namespace Clave5_Grupo6
                 p.total,
                 h.Equipo_disponible,
                 r.fecha_entrada,
-                r.fecha_salida
+                r.fecha_salida,
+                p.hora_entrada,      -- Ahora estas columnas existen
+                p.hora_salida,       -- Ahora estas columnas existen
+                r.num_huespedes,
+                r.notas
             FROM pagos p
             JOIN tabla_reserva r ON r.id_reserva = p.reserva_id
             JOIN tabla_habitaciones h ON h.id_Habitaciones = r.habitacion_id
@@ -490,44 +557,86 @@ namespace Clave5_Grupo6
 
                 using var cmd = new MySqlCommand(sql, cn);
 
-                // Conversión segura del SelectedValue
                 int clienteId;
-                if (int.TryParse(cmbSeleccionarHuesped.SelectedValue.ToString(), out clienteId))
-                {
-                    cmd.Parameters.AddWithValue("@cli", clienteId);
-                }
-                else
+                if (!int.TryParse(cmbSeleccionarHuesped.SelectedValue.ToString(), out clienteId))
                 {
                     MessageBox.Show("Error: ID de cliente no válido.");
                     return;
                 }
 
+                cmd.Parameters.AddWithValue("@cli", clienteId);
+
                 using var rd = cmd.ExecuteReader();
                 if (rd.Read())
                 {
-                    // Llenar los campos con la información del huésped
+                    // Información básica
                     txtHotelSeleccionado.Text = rd["Tipo_de_hotel"]?.ToString() ?? "";
                     txtHabitacionSeleccionada.Text = rd["Tipo_de_habitacion"]?.ToString() ?? "";
                     txtMetPagoSeleccionado.Text = rd["metodo_pago"]?.ToString() ?? "";
+                    txtEquipoDisponible.Text = rd["Equipo_disponible"]?.ToString() ?? "";
 
-                    // Manejo seguro de valores decimales
+                    // Precios
                     if (rd["precio_base"] != DBNull.Value)
                         txtPrecioSinIVA.Text = Convert.ToDecimal(rd["precio_base"]).ToString("C2");
-                    else
-                        txtPrecioSinIVA.Text = "";
 
                     if (rd["total"] != DBNull.Value)
                         txtPrecioFinal.Text = Convert.ToDecimal(rd["total"]).ToString("C2");
-                    else
-                        txtPrecioFinal.Text = "";
 
-                    txtEquipoDisponible.Text = rd["Equipo_disponible"]?.ToString() ?? "";
-
-                    // Opcional: mostrar fechas de la reserva
+                    // Fechas
                     if (rd["fecha_entrada"] != DBNull.Value)
                         dtpFechaEntrada.Value = rd.GetDateTime("fecha_entrada");
                     if (rd["fecha_salida"] != DBNull.Value)
                         dtpFechaSalida.Value = rd.GetDateTime("fecha_salida");
+
+                    // *** HORAS desde la tabla PAGOS ***
+                    // Para hora de entrada
+                    if (rd["hora_entrada"] != DBNull.Value)
+                    {
+                        string horaEntrada = rd["hora_entrada"].ToString();
+
+                        // Si es un TextBox
+                        if (Controls.ContainsKey("txtHoraEntrada"))
+                            ((TextBox)Controls["txtHoraEntrada"]).Text = horaEntrada;
+
+                        // Si es un DateTimePicker con formato de tiempo
+                        else if (Controls.ContainsKey("dtpHoraEntrada"))
+                        {
+                            if (TimeSpan.TryParse(horaEntrada, out TimeSpan timeEntrada))
+                                ((DateTimePicker)Controls["dtpHoraEntrada"]).Value = DateTime.Today.Add(timeEntrada);
+                        }
+
+                        // Si es un MaskedTextBox
+                        else if (Controls.ContainsKey("mtxtHoraEntrada"))
+                            ((MaskedTextBox)Controls["mtxtHoraEntrada"]).Text = horaEntrada;
+                    }
+
+                    // Para hora de salida
+                    if (rd["hora_salida"] != DBNull.Value)
+                    {
+                        string horaSalida = rd["hora_salida"].ToString();
+
+                        // Si es un TextBox
+                        if (Controls.ContainsKey("txtHoraSalida"))
+                            ((TextBox)Controls["txtHoraSalida"]).Text = horaSalida;
+
+                        // Si es un DateTimePicker con formato de tiempo
+                        else if (Controls.ContainsKey("dtpHoraSalida"))
+                        {
+                            if (TimeSpan.TryParse(horaSalida, out TimeSpan timeSalida))
+                                ((DateTimePicker)Controls["dtpHoraSalida"]).Value = DateTime.Today.Add(timeSalida);
+                        }
+
+                        // Si es un MaskedTextBox
+                        else if (Controls.ContainsKey("mtxtHoraSalida"))
+                            ((MaskedTextBox)Controls["mtxtHoraSalida"]).Text = horaSalida;
+                    }
+
+                    // Información de huéspedes
+                    if (rd["num_huespedes"] != DBNull.Value)
+                        txtCantHuespedes.Text = rd.GetInt32("num_huespedes").ToString();
+
+                    if (rd["notas"] != DBNull.Value)
+                        txtInfoHuespedes.Text = rd["notas"].ToString();
                 }
                 else
                 {
@@ -538,7 +647,7 @@ namespace Clave5_Grupo6
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar información del huésped: {ex.Message}");
-            }
+            }   
         }
         private void LimpiarCamposHuesped()
         {
@@ -548,6 +657,21 @@ namespace Clave5_Grupo6
             txtPrecioSinIVA.Text = "";
             txtPrecioFinal.Text = "";
             txtEquipoDisponible.Text = "";
+            txtCantHuespedes.Text="";
+            txtInfoHuespedes.Text = "";
+            // Limpiar controles de hora
+            if (Controls.ContainsKey("txtHoraEntrada"))
+                ((TextBox)Controls["txtHoraEntrada"]).Text = "";
+            if (Controls.ContainsKey("txtHoraSalida"))
+                ((TextBox)Controls["txtHoraSalida"]).Text = "";
+            if (Controls.ContainsKey("dtpHoraEntrada"))
+                ((DateTimePicker)Controls["dtpHoraEntrada"]).Value = DateTime.Now;
+            if (Controls.ContainsKey("dtpHoraSalida"))
+                ((DateTimePicker)Controls["dtpHoraSalida"]).Value = DateTime.Now;
+            if (Controls.ContainsKey("mtxtHoraEntrada"))
+                ((MaskedTextBox)Controls["mtxtHoraEntrada"]).Text = "";
+            if (Controls.ContainsKey("mtxtHoraSalida"))
+                ((MaskedTextBox)Controls["mtxtHoraSalida"]).Text = "";
         }
 
     }
