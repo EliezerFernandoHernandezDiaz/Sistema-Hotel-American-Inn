@@ -145,22 +145,22 @@ namespace Clave5_Grupo6
             cmbSeleccionarHuesped.ValueMember = "cliente_id";
             cmbSeleccionarHuesped.SelectedIndex = -1;
             // Configurar campos como solo lectura
-            txtHotelSeleccionado.ReadOnly = true;
-            txtHabitacionSeleccionada.ReadOnly = true;
-            txtMetPagoSeleccionado.ReadOnly = true;
-            txtPrecioSinIVA.ReadOnly = true;
-            txtPrecioFinal.ReadOnly = true;
+            if (Controls.ContainsKey("txtHotelSeleccionado")) txtHotelSeleccionado.ReadOnly = true;
+            if (Controls.ContainsKey("txtHabitacionSeleccionada")) txtHabitacionSeleccionada.ReadOnly = true;
+            if (Controls.ContainsKey("txtFormaPago")) txtMetPagoSeleccionado.ReadOnly = true;
+            if (Controls.ContainsKey("txtPrecioBaseHabitacion")) txtPrecioSinIVA.ReadOnly = true;
+            if (Controls.ContainsKey("txtPrecioIvaTotal")) txtPrecioFinal.ReadOnly = true;
 
-            // Deshabilitar controles de fecha si es necesario
-            dtpFechaEntrada.Enabled = false;
-            dtpFechaSalida.Enabled = false;
+            if (Controls.ContainsKey("dtpFechaEntrada")) dtpFechaEntrada.Enabled = false;
+            if (Controls.ContainsKey("dtpFechaSalida")) dtpFechaSalida.Enabled = false;
 
-            // Cargar datos
-            if (_idReserva > 0)
-                CargarFicha(_idReserva);
+            if (_idReserva > 0) CargarFicha(_idReserva);
 
+            // Cargar una sola vez
             CargarClientesPago();
 
+            // Asignar evento después de cargar datos
+            cmbSeleccionarHuesped.SelectedIndexChanged += cmbSeleccionarHuesped_SelectedIndexChanged;
             // Asignar evento después de cargar los datos
             cmbSeleccionarHuesped.SelectedIndexChanged += cmbSeleccionarHuesped_SelectedIndexChanged;
         }
